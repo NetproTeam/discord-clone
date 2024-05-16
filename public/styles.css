@@ -1,0 +1,224 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-weight: 300;
+}
+
+body {
+    font-family: "Source Sans Pro", sans-serif;
+    color: white;
+    font-weight: 300;
+    background: #2c2d31;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container h1 {
+    font-size: 40px;
+    font-weight: 200;
+}
+
+form input {
+    border: 1px solid rgba(252, 252, 252, 0.4);
+    background-color: #d9d9d9;
+    width: 400px;
+    border-radius: 3px;
+    font-family: "Source Sans Pro", sans-serif;
+    padding: 10px 15px;
+    margin: 16px auto;
+    display: block;
+    text-align: left;
+    font-size: 19px;
+    color: black;
+    font-weight: 500;
+}
+
+input::placeholder {
+    font-size: 12px;
+}
+
+form button {
+    appearance: none;
+    outline: 0;
+    background-color: #404994;
+    border: 0;
+    padding: 10px 15px;
+    color: #d9d9d9;
+    border-radius: 3px;
+    width: 400px;
+    font-size: 18px;
+}
+
+button:hover {
+    background-color: #545f9c
+}
+
+button:active {
+    background-color: #545f9c;
+    box-shadow: 0 5px #666;
+}
+
+
+/* ------------------- Sidebar ----------------- */
+.sidebar {
+    display: flex;
+    flex: 0.15;
+    flex-direction: column;
+    height: 100vh;
+    background-color: #2b2d31;
+}
+
+.sidebar .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #2f3135;
+    color: white;
+    border-bottom: 3px solid #26282c;
+}
+
+.sidebar .channels {
+    flex: 1;
+}
+
+.sidebar .channels-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #2f3135;
+    color: white;
+}
+
+.sidebar .header {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar .list-header {
+    display: flex;
+    align-items: center;
+    padding: 4px 12px;
+    background: #404150;
+    margin: 0 10px;
+    order: 1;
+}
+
+.sidebar .channel-detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .users {
+    margin: 8px 12px;
+    color: gray;
+    order: 2;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.sidebar .profile-icons {
+    background: #232428;
+    display: flex;
+    padding: 16px;
+}
+
+.sidebar .profile-icons .icon {
+    padding: 0 12px;
+}
+
+/* ------------------- UserScreen ----------------- */
+
+.user-screen {
+    flex: 0.4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background: #313339;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.user-screen .camera {
+    height: 400px;
+    margin: 5px;
+    background: gray;
+    aspect-ratio: 1.2 / 1;
+}
+
+
+/* ------------------- Chat ----------------- */
+
+.chat-screen {
+    flex: 0.45;
+    display: flex;
+    flex-direction: column;
+    background: #2b2d31;
+    height: 100vh;
+}
+
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: gray;
+    padding: 12px;
+}
+
+.chat-header .left {
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.chat-body {
+    display: flex;
+    flex-direction: column;
+    background-color: #363a3f;
+    height: 100vh;
+}
+
+.chat-body .messages {
+    flex: 1;
+    overflow: scroll;
+}
+
+.chat-body .chat-input {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+}
+
+.chat-body .messages {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.chat-input form {
+    flex: 1;
+}
+
+.chat-input form input {
+    background: #474a51;
+    border: none;
+    width: 100%;
+    outline-width: 0;
+    color: white;
+    font-size: large;
+}
+
+.home {
+    display: flex;
+}
