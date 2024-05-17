@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add"
 import CameraOnIcon from "@mui/icons-material/Videocam";
@@ -6,9 +6,21 @@ import CameraOffIcon from "@mui/icons-material/VideocamOff";
 import MicOnIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ChannelList from "./ChannelList";
+import Dialog from "./AddChannelDialog";
 
 
 function Sidebar(props) {
+    const [showDialog, setShowDialog] = useState(false);
+
+    const handleOpenDialog = () => {
+        setShowDialog(true);
+    }
+
+    const handleCloseDialog = () => {
+        setShowDialog(false);
+    }
+
+
     return (
         <div className="col-md-2 sidebar" style={{paddingLeft: "0px", paddingRight: "0px"}}>
             <div className="top">
@@ -22,7 +34,13 @@ function Sidebar(props) {
                         <ExpandMoreIcon/>
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon/>
+                    <AddIcon onClick={handleOpenDialog}/>
+
+                    {
+                        showDialog && (
+                            <Dialog onClose={handleCloseDialog} />
+                        )
+                    }
                 </div>
                 <ChannelList channelName="Test1" username="Hello"/>
             </div>
