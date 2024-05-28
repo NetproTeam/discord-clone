@@ -1,48 +1,52 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import AddIcon from "@mui/icons-material/Add"
+import AddIcon from "@mui/icons-material/Add";
 import CameraOnIcon from "@mui/icons-material/Videocam";
 import CameraOffIcon from "@mui/icons-material/VideocamOff";
 import MicOnIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ChannelList from "./ChannelList";
 import Dialog from "./AddChannelDialog";
-
+import UserScreen from './UserScreen';
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
+    const [showCam, setCamera] = useState(1);
 
     const handleOpenDialog = () => {
         setShowDialog(true);
-    }
+    };
 
     const handleCloseDialog = () => {
         setShowDialog(false);
-    }
+    };
 
+    const handleOnCamera = () =>{
+        setCamera(1);
+    };
+
+    const handleOffCamera = () =>{
+        setCamera(-1);
+    };
 
     return (
-        <div className="col-md-2 sidebar" style={{paddingLeft: "0px", paddingRight: "0px"}}>
+        <div className="col-md-2 sidebar" style={{ paddingLeft: "0px", paddingRight: "0px" }}>
             <div className="top">
                 <h3>{props.username}</h3>
-                <ExpandMoreIcon/>
+                <ExpandMoreIcon />
             </div>
 
             <div className="channels">
                 <div className="channels-header">
                     <div className="header">
-                        <ExpandMoreIcon/>
+                        <ExpandMoreIcon />
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog}/>
+                    <AddIcon onClick={handleOpenDialog} />
 
-                    {
-                        showDialog && (
-                            <Dialog onClose={handleCloseDialog} />
-                        )
-                    }
+                    {showDialog && <Dialog onClose={handleCloseDialog} />}
                 </div>
-                <ChannelList channelName="Test1" username="Hello"/>
+                <ChannelList channelName="Test1" username="Hello" />
             </div>
 
             <div className="profile-icons">
@@ -50,7 +54,9 @@ function Sidebar(props) {
                     <MicOnIcon />
                 </div>
                 <div className="icon">
-                    <CameraOnIcon />
+                    {(props.cameraCount % 2 === 0) ? 
+                    <CameraOnIcon onClick={props.onCamera} /> :
+                    <CameraOffIcon onClick={props.offCamera} />}
                 </div>
             </div>
         </div>

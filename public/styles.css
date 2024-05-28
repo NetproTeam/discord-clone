@@ -154,7 +154,7 @@ button:active {
 .user-screen .camera {
     height: 400px;
     margin: 5px;
-    background: gray;
+    /* background: gray;*/
     aspect-ratio: 1.2 / 1;
 }
 
