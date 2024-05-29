@@ -7,6 +7,7 @@ import ChatScreen from "./ChatScreen";
 function Home() {
     const {username} = useParams();
     const [cameraCount, setCameraCount] = useState(0); // 카메라 개수 상태
+    const [channelName, chanName] = useState(""); // 카메라 개수 상태
     const onCamera = () => {
         setCameraCount(prevCount => prevCount + 1); // 카메라 개수 증가
     };
@@ -16,9 +17,9 @@ function Home() {
 
     return (
         <div className="home">
-            <Sidebar username={username} cameraCount={cameraCount} onCamera={onCamera} offCamera = {offCamera}/>
+            <Sidebar username={username} cameraCount={cameraCount} onCamera={onCamera} offCamera = {offCamera} setChannelName={chanName}/>
             <UserScreen cameraCount={cameraCount} />
-            <ChatScreen />
+            <ChatScreen channelName = {channelName} />
         </div>
     );
 }

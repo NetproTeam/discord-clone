@@ -2,11 +2,11 @@ import React from "react";
 import ChatHeader from "./ChatHeader";
 import ChatBody from "./ChatBody";
 
-function ChatScreen() {
+function ChatScreen(props) {
     return (
         <div className="chat-screen">
             <ChatHeader />
-            <ChatBody />
+            <ChatBody channelName = {props.channelName}/>
         </div>
     );
 }

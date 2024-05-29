@@ -8,10 +8,10 @@ import MicOffIcon from "@mui/icons-material/MicOff";
 import ChannelList from "./ChannelList";
 import Dialog from "./AddChannelDialog";
 import UserScreen from './UserScreen';
+import Home from './Home';
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
-    const [showCam, setCamera] = useState(1);
 
     const handleOpenDialog = () => {
         setShowDialog(true);
@@ -21,13 +21,7 @@ function Sidebar(props) {
         setShowDialog(false);
     };
 
-    const handleOnCamera = () =>{
-        setCamera(1);
-    };
-
-    const handleOffCamera = () =>{
-        setCamera(-1);
-    };
+    props.setChannelName("Test1");
 
     return (
         <div className="col-md-2 sidebar" style={{ paddingLeft: "0px", paddingRight: "0px" }}>
