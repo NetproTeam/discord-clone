@@ -9,6 +9,8 @@ import ChannelList from "./ChannelList";
 import Dialog from "./AddChannelDialog";
 import UserScreen from './UserScreen';
 import Home from './Home';
+import UserCamera from './UserCamera';
+import UserVoice from './UserVoice';
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
@@ -40,12 +42,15 @@ function Sidebar(props) {
 
                     {showDialog && <Dialog onClose={handleCloseDialog} />}
                 </div>
-                <ChannelList channelName="Test1" username="Hello" />
+                <ChannelList channelName= "Test1" users={[{index: 1, name: "temp"}/*, {index: 2, name: "temp1"}*/]} username={props.username} />
             </div>
 
             <div className="profile-icons">
-                <div className="icon">
-                    <MicOnIcon />
+                <div className="icon">                    
+                    {(props.myMikeState) ?
+                    <MicOnIcon onClick={props.offMike} /> :
+                    <MicOffIcon onClick={props.onMike} />}
+                    <UserVoice micState ={props.myMikeState} />
                 </div>
                 <div className="icon">
                     {(props.myCameraState) ?

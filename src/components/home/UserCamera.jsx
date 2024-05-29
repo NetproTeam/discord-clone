@@ -43,7 +43,7 @@ function UserCamera(props) {
             <video
                 ref={videoRef}
                 autoPlay
-                style={{width: '100%', height: 'auto', transform: 'scaleX(-1)'}}>
+                style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
             </video>
         </div>
     );
