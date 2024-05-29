@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 
-function UserCamera() {
+function UserCamera(props) {
     const videoRef = useRef(null);
     const [streaming, setStreaming] = useState(false);
 
@@ -12,34 +12,38 @@ function UserCamera() {
             });
             videoRef.current.srcObject = stream;
             setStreaming(true);
-
-            stream.getVideoTracks()[0].onended = () => {
-                stopWebcam();
-            };
         } catch (err) {
             console.error("Error: " + err);
         }
     };
 
-    const stopWebcam = () => {
-        const stream = videoRef.current.srcObject;
-        const tracks = stream.getTracks();
 
-        tracks.forEach(track => track.stop());
-        videoRef.current.srcObject = null;
-        setStreaming(false);
+    const stopWebcam = () => {
+        try {
+            const stream = videoRef.current.srcObject;
+            const tracks = stream.getTracks();
+
+            tracks.forEach(track => track.stop());
+            videoRef.current.srcObject = null;
+        } catch (e) {
+            console.error(e)
+        }
     };
 
     useEffect(() => {
-        startWebcam();
-    }, []);
+        if (props.myCameraState) {
+            startWebcam()
+        } else {
+            stopWebcam()
+        }
+    }, [props.myCameraState])
 
     return (
         <div className="camera">
             <video
                 ref={videoRef}
                 autoPlay
-                style={{ width: '100%', height: 'auto', transform: 'scaleX(-1)' }}>
+                style={{width: '100%', height: 'auto', transform: 'scaleX(-1)'}}>
             </video>
         </div>
     );

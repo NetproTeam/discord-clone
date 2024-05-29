@@ -21,14 +21,6 @@ function Sidebar(props) {
         setShowDialog(false);
     };
 
-    const handleOnCamera = () =>{
-        setCamera(1);
-    };
-
-    const handleOffCamera = () =>{
-        setCamera(-1);
-    };
-
     return (
         <div className="col-md-2 sidebar" style={{ paddingLeft: "0px", paddingRight: "0px" }}>
             <div className="top">
@@ -54,9 +46,9 @@ function Sidebar(props) {
                     <MicOnIcon />
                 </div>
                 <div className="icon">
-                    {(props.cameraCount % 2 === 0) ? 
-                    <CameraOnIcon onClick={props.onCamera} /> :
-                    <CameraOffIcon onClick={props.offCamera} />}
+                    {(props.myCameraState) ?
+                    <CameraOnIcon onClick={props.offCamera} /> :
+                    <CameraOffIcon onClick={props.onCamera} />}
                 </div>
             </div>
         </div>
