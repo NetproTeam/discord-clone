@@ -298,6 +298,18 @@ button:active {
     font-size: 15px;
 }
 
+.dialog .bottom .delete {
+    background: #404994;
+    color: white;
+    appearance: none;
+    outline: 0;
+    border: 0;
+    padding: 10px 15px;
+    border-radius: 3px;
+    width: 150px;
+    font-size: 15px;
+}
+
 .dialog .bottom .cancel:hover {
 
 }

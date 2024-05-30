@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {createPortal} from 'react-dom';
 import CloseIcon from "@mui/icons-material/Close"
 
-const AddChannelDialog = ({children, onClose}) => {
+const ChannelDelete = ({children, onClose}) => {
     const [input, setInput] = useState("");
 
 
@@ -11,17 +11,16 @@ const AddChannelDialog = ({children, onClose}) => {
             <div className="content">
                 {children}
                 <div className="title">
-                    <h3>채널 만들기</h3>
+                    <h3>채널 삭제하기</h3>
                     <CloseIcon onClick={onClose}/>
                 </div>
-                <div className="body">
-                    <h5>채널 이름</h5>
-                    <input placeholder="새로운 채널" />
+                <div className="body" style={{width:"400px", height: "50px"}}>
+                <h3>정말로 채널을 삭제하실 겁니까?</h3>
                 </div>
 
                 <div className="bottom">
                     <button onClick={onClose} className="cancel">취소</button>
-                    <button className="make">채널 만들기</button>
+                    <button className="delete">삭제하기</button>
                 </div>
             </div>
         </div>,
@@ -29,4 +28,4 @@ const AddChannelDialog = ({children, onClose}) => {
     );
 };
 
-export default AddChannelDialog;
+export default ChannelDelete;

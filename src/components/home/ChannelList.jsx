@@ -1,16 +1,54 @@
 import React, {useState} from "react";
+import ModeIcon from '@mui/icons-material/Mode';
 import SoundIcon from "@mui/icons-material/VolumeUp"
 import { colors } from "@mui/material";
+import { Delete, Mode } from "@mui/icons-material";
+import ChannelEdit from "./ChannelEdit";
+import ChannelDelete from "./ChannelDelete";
 
 function ListHeader(props) {
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [channelName, setChannelName] = useState(props.channelName);
+
+    const handleOpenDialog = () => {
+        setShowEditDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setShowEditDialog(false);
+    };
+
+    const handleUpdateChannelName = (newName) => {
+        setChannelName(newName);
+        setShowEditDialog(false);
+    };
+
+    const handleOpenDeleteDialog = () => {
+        setShowDeleteDialog(true);
+    };
+
+    const handleCloseDeleteDialog = () => {
+        setShowDeleteDialog(false);
+    };
 
     return (
         <div className="list-header">
-            <button onClick={props.addUser} style={{ display: 'flex', alignItems: 'center', padding: '1px', border: 'none', background: 'none', cursor: 'pointer' }}>
+            <div className="list-joinBtn">
+            <button onClick={props.addUser} style={{ display: 'flex', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer' }}>
                 <SoundIcon style={{color: "white"}} />
-                <h4 style={{ marginLeft: '10px', color: "white" }}>
+                <h4 style={{ marginLeft: '10px',display: "inline-block", color: "white" }}>
                     {props.channelName}</h4>
             </button>
+            </div>
+            <div className="list-editBtn">
+            <Mode onClick={handleOpenDialog} style={{ color: "white", justifyContent: 'space-between' }} />
+            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={channelName} onSubmit={handleUpdateChannelName} />}
+            </div>
+            <div className="list-deleteBtn">
+            <Delete onClick={handleOpenDeleteDialog} style={{ color: "white" }} />
+            {showDeleteDialog && <ChannelDelete onClose={handleCloseDeleteDialog} />}
+            </div>
         </div>
     );
 }

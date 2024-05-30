@@ -35,8 +35,7 @@ function Sidebar(props) {
             <div className="channels">
                 <div className="channels-header">
                     <div className="header">
-                        <ExpandMoreIcon />
-                        <h5>음성 체널</h5>
+                    <h5>음성 체널</h5>
                     </div>
                     <AddIcon onClick={handleOpenDialog} />
 
