@@ -1,8 +1,16 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
+import axios from "axios";
+
+function sendMessage() {
+    axios.get();
+}
 
 function ChatBody(props) {
     const [input, setInput] = useState('');
 
+    useEffect(() => {
+
+    }, [input]);
 
     return (
         <div className="chat-body">
@@ -21,7 +29,6 @@ function ChatBody(props) {
                 </form>
             </div>
         </div>
-
     )
 }
 

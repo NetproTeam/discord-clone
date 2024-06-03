@@ -1,17 +1,15 @@
 import React, {useState, useEffect} from "react";
 import ModeIcon from '@mui/icons-material/Mode';
 import SoundIcon from "@mui/icons-material/VolumeUp"
-import { colors } from "@mui/material";
 import { Delete, Mode } from "@mui/icons-material";
 import ChannelEdit from "./ChannelEdit";
 import ChannelDelete from "./ChannelDelete";
-import axios from "axios";
 
 function ListHeader({addUser, channelName, channelId, onReset}) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [chanName, setChannelName] = useState(channelName);
- 
+
     const handleOpenDialog = () => {
         setShowEditDialog(true);
     };
@@ -67,19 +65,19 @@ function User(props) {
 
 function ChannelList(props) {
     const [showUser, setShowUser] = useState(false);
-    const [channelId, setChannelId] = useState(props.channelId);
 
     const addUser = () => {
         setShowUser(!showUser);
     };
+
     return (
-        <div className="channel-detail">
-            <ListHeader channelName={props.channelName} onReset={props.onReset} channelId={channelId}  addUser={addUser}/>
-            
+        <div className="channel-detail" onClick={() => props.setChannel(props.channelName, props.channelId)}>
+            <ListHeader channelName={props.channelName} onReset={props.onReset} channelId={props.channelId}  addUser={addUser}/>
+
             {/*{props.users.map( user =>*/}
             {/*    <User key={user.index} username={user.name}/>*/}
             {/*)}*/}
-                
+
         </div>
     );
 }

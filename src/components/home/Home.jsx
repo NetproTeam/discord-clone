@@ -10,26 +10,28 @@ function Home() {
     const [channelName, chanName] = useState(""); // 카메라 개수 상태
     const [myCameraState, setMyCameraState] = useState(false);
     const [myMikeState, setmyMikeState] = useState(false);
+    const [id, setId] = useState(-1);
+
     const onCamera = () => {
         setMyCameraState(true)
     };
     const offCamera = () => {
         setMyCameraState(false)
     };
-    const onMike =() => {
+    const onMike = () => {
         setmyMikeState(true)
     }
-    const offMike =() => {
+    const offMike = () => {
         setmyMikeState(false)
     }
 
-
-
     return (
         <div className="home">
-            <Sidebar username={username} cameraCount={cameraCount} onCamera={onCamera} offCamera = {offCamera} onMike={onMike} offMike = {offMike}  myMikeState={myMikeState} myCameraState={myCameraState} setChannelName={chanName}/>
+            <Sidebar username={username} cameraCount={cameraCount} onCamera={onCamera} offCamera={offCamera}
+                     onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
+                     setChannelName={chanName} setId={setId}/>
             <UserScreen cameraCount={cameraCount} myCameraState={myCameraState}/>
-            <ChatScreen channelName = {channelName} />
+            <ChatScreen channelName={channelName} id={id}/>
         </div>
     );
 }
