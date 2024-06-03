@@ -18,7 +18,8 @@ function Login() {
         // send username to server and check response
         if (input.length !== 0) {
             postUserName(input).then((response) => {
-                navigate(`/home/${input}`);
+                const name = encodeURIComponent(response.data.uniqueUserName);
+                navigate(`/home/${name}`);
             }).catch((error) => {
                     console.error(error)
                 }

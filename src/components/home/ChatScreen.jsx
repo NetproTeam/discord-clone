@@ -6,7 +6,7 @@ function ChatScreen(props) {
     return (
         <div className="chat-screen">
             <ChatHeader />
-            <ChatBody channelName = {props.channelName}/>
+            <ChatBody channelName = {props.channelName} id={props.id} name={props.name}/>
         </div>
     );
 }

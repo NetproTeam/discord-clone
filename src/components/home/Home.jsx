@@ -10,7 +10,7 @@ function Home() {
     const [channelName, chanName] = useState(""); // 카메라 개수 상태
     const [myCameraState, setMyCameraState] = useState(false);
     const [myMikeState, setmyMikeState] = useState(false);
-    const [id, setId] = useState(-1);
+    const [id, setId] = useState(1);
 
     const onCamera = () => {
         setMyCameraState(true)
@@ -31,7 +31,7 @@ function Home() {
                      onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
                      setChannelName={chanName} setId={setId}/>
             <UserScreen cameraCount={cameraCount} myCameraState={myCameraState}/>
-            <ChatScreen channelName={channelName} id={id}/>
+            <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
 }
