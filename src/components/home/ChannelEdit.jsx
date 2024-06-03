@@ -1,18 +1,44 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {createPortal} from 'react-dom';
-import CloseIcon from "@mui/icons-material/Close"
+import CloseIcon from "@mui/icons-material/Close";
+import {useLocation, useNavigate} from "react-router-dom";
+import axios from "axios";
 
-const ChannelEdit = ({children, onClose, initialChannelName, onSubmit}) => {
+const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}) => {
+
+    function patchChannelName(channelName) {
+        console.log("new name: "+channelName);
+        console.log("ori name: "+initialChannelName); 
+        return axios.patch("https://127.0.0.1/channel/"+id, { name: channelName }); // 포트 번호 확인
+    }
     const [input, setInput] = useState(initialChannelName);
     const [name, setChannelName] = useState(initialChannelName);
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [previousPath, setPreviousPath] = useState("");
+    const [id, setId] = useState(channelId);
+
+    useEffect(() => {
+        setPreviousPath(location.pathname);
+    }, [location]);
+
+    const handleSubmit = () => {
+        if (id !== 1) {
+            patchChannelName(input).then((response) => {
+                onSubmit();
+                navigate(previousPath); // Navigate back to the original route
+                onClose();
+            }).catch((error) => {
+                    console.error(error)
+                }
+            )
+        }
+    };
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
         setChannelName(input);
-    };
-
-    const handleSubmit = () => {
-        onSubmit(input); // Pass the new name to the parent component
     };
 
     return createPortal(
