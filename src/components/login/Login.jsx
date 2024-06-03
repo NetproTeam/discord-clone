@@ -1,5 +1,10 @@
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
+import axios from "axios";
+
+function postUserName(username) {
+    return axios.post("https://127.0.0.1/login", {name: username})
+}
 
 function Login() {
     let navigate = useNavigate()
@@ -12,7 +17,12 @@ function Login() {
     const handleLogin = () => {
         // send username to server and check response
         if (input.length !== 0) {
-            navigate(`/home/${input}`);
+            postUserName(input).then((response) => {
+                navigate(`/home/${input}`);
+            }).catch((error) => {
+                    console.error(error)
+                }
+            )
         }
     };
 
