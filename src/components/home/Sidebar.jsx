@@ -12,6 +12,7 @@ import Home from './Home';
 import UserCamera from './UserCamera';
 import UserVoice from './UserVoice';
 import axios from "axios";
+import PropTypes from "prop-types";
 
 function getChannelList() {
     return axios.get("https://127.0.0.1/channel")
@@ -19,7 +20,7 @@ function getChannelList() {
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
-    const [channelList, setChannelList] = useState(null);
+    const channelList = props.channelList
 
     const handleOpenDialog = () => {
         setShowDialog(true);
@@ -32,7 +33,7 @@ function Sidebar(props) {
 
     const resetList = () => {
         getChannelList().then((response) => {
-            setChannelList(response.data);
+            props.setChannelList(response.data);
         }).catch((error) => {
             console.error(error);
         })
@@ -43,14 +44,6 @@ function Sidebar(props) {
         props.setChannelName(name);
         props.setId(id);
     }
-
-    useEffect(() => {
-        getChannelList().then((response) => {
-            setChannelList(response.data);
-        }).catch((error) => {
-            console.error(error);
-        })
-    }, []);
 
     return (
         <div className="col-md-2 sidebar" style={{paddingLeft: "0px", paddingRight: "0px"}}>
@@ -71,7 +64,7 @@ function Sidebar(props) {
                 {
                     channelList && channelList.map((data) => {
                         return <ChannelList key={data.id} onReset={resetList} channelId={data.id} channelName={data.name}
-                                            setChannel={setChannel}/>
+                                            setChannel={setChannel} client={data.clients}/>
                     })
                 }
             </div>
