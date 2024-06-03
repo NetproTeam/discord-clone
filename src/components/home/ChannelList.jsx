@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import ModeIcon from '@mui/icons-material/Mode';
 import SoundIcon from "@mui/icons-material/VolumeUp"
 import { colors } from "@mui/material";
@@ -17,17 +17,17 @@ function ListHeader({addUser, channelName, channelId, onReset}) {
     };
 
     const handleCloseDialog = () => {
-
+        onReset();
         setShowEditDialog(false);
     };
 
     const handleUpdateChannelName = (newName) => {
+        onReset();
         setChannelName(newName);
         setShowEditDialog(false);
     };
 
     const handleOpenDeleteDialog = () => {
-        console.log("chanlist "+channelId);
         setShowDeleteDialog(true);
     };
 
@@ -47,7 +47,7 @@ function ListHeader({addUser, channelName, channelId, onReset}) {
             </div>
             <div className="list-editBtn">
             {channelId === 1 ? <></> : <Mode onClick={handleOpenDialog} style={{ color: "white", justifyContent: 'space-between' }} />}
-            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName} onSubmit={handleUpdateChannelName} />}
+            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName} onSubmit={handleUpdateChannelName}  channelId = {channelId} name = {chanName}/>}
             </div>
             <div className="list-deleteBtn">
             {channelId === 1 ? <></> : <Delete onClick={handleOpenDeleteDialog} style={{ color: "white" }} />}
@@ -69,7 +69,6 @@ function ChannelList(props) {
     const [showUser, setShowUser] = useState(false);
     const [channelId, setChannelId] = useState(props.channelId);
 
-    console.log(props.channelName);
     const addUser = () => {
         setShowUser(!showUser);
     };
