@@ -5,6 +5,7 @@ import { colors } from "@mui/material";
 import { Delete, Mode } from "@mui/icons-material";
 import ChannelEdit from "./ChannelEdit";
 import ChannelDelete from "./ChannelDelete";
+import axios from "axios";
 
 function ListHeader(props) {
     const [showEditDialog, setShowEditDialog] = useState(false);
@@ -64,6 +65,7 @@ function User(props) {
 function ChannelList(props) {
     const [showUser, setShowUser] = useState(false);
 
+    console.log(props.channelName);
     const addUser = () => {
         setShowUser(!showUser);
     };
@@ -71,9 +73,9 @@ function ChannelList(props) {
         <div className="channel-detail">
             <ListHeader channelName={props.channelName} addUser={addUser}/>
             
-            {props.users.map( user =>
-                <User key={user.index} username={user.name}/>
-            )}
+            {/*{props.users.map( user =>*/}
+            {/*    <User key={user.index} username={user.name}/>*/}
+            {/*)}*/}
                 
         </div>
     );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import CameraOnIcon from "@mui/icons-material/Videocam";
@@ -11,6 +11,11 @@ import UserScreen from './UserScreen';
 import Home from './Home';
 import UserCamera from './UserCamera';
 import UserVoice from './UserVoice';
+import axios from "axios";
+
+function getChannelList() {
+    return axios.get("https://127.0.0.1/channel")
+}
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
@@ -23,38 +28,50 @@ function Sidebar(props) {
         setShowDialog(false);
     };
 
-    props.setChannelName("Test1");
-    
+    const [channelList, setChannelList] = useState(null);
+
+    useEffect(() => {
+        getChannelList().then((response) => {
+            setChannelList(response.data);
+        }).catch((error) => {
+            console.error(error);
+        })
+    }, []);
+
     return (
-        <div className="col-md-2 sidebar" style={{ paddingLeft: "0px", paddingRight: "0px" }}>
+        <div className="col-md-2 sidebar" style={{paddingLeft: "0px", paddingRight: "0px"}}>
             <div className="top">
                 <h3>{props.username}</h3>
-                <ExpandMoreIcon />
+                <ExpandMoreIcon/>
             </div>
 
             <div className="channels">
                 <div className="channels-header">
                     <div className="header">
-                    <h5>음성 체널</h5>
+                        <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog} />
+                    <AddIcon onClick={handleOpenDialog}/>
 
-                    {showDialog && <Dialog onClose={handleCloseDialog} />}
+                    {showDialog && <Dialog onClose={handleCloseDialog}/>}
                 </div>
-                <ChannelList channelName= "Test1" users={[{index: 1, name: "temp"}/*, {index: 2, name: "temp1"}*/]} username={props.username} />
+                {
+                    channelList && channelList.map((data) => {
+                        return <ChannelList key={data.id} channelName={data.name}/>
+                    })
+                }
             </div>
 
             <div className="profile-icons">
-                <div className="icon">                    
+                <div className="icon">
                     {(props.myMikeState) ?
-                    <MicOnIcon onClick={props.offMike} /> :
-                    <MicOffIcon onClick={props.onMike} />}
-                    <UserVoice micState ={props.myMikeState} />
+                        <MicOnIcon onClick={props.offMike}/> :
+                        <MicOffIcon onClick={props.onMike}/>}
+                    <UserVoice micState={props.myMikeState}/>
                 </div>
                 <div className="icon">
                     {(props.myCameraState) ?
-                    <CameraOnIcon onClick={props.offCamera} /> :
-                    <CameraOffIcon onClick={props.onCamera} />}
+                        <CameraOnIcon onClick={props.offCamera}/> :
+                        <CameraOffIcon onClick={props.onCamera}/>}
                 </div>
             </div>
         </div>
