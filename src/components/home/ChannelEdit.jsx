@@ -7,8 +7,6 @@ import axios from "axios";
 const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}) => {
 
     function patchChannelName(channelName) {
-        console.log("new name: "+channelName);
-        console.log("ori name: "+initialChannelName); 
         return axios.patch("https://127.0.0.1/channel/"+id, { name: channelName }); // 포트 번호 확인
     }
     const [input, setInput] = useState(initialChannelName);
@@ -25,8 +23,9 @@ const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}
 
     const handleSubmit = () => {
         if (id !== 1) {
+            console.log("input "+input);
             patchChannelName(input).then((response) => {
-                onSubmit();
+                onSubmit(input);
                 navigate(previousPath); // Navigate back to the original route
                 onClose();
             }).catch((error) => {

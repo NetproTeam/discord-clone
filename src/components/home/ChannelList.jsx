@@ -14,15 +14,15 @@ function ListHeader({addUser, channelName, channelId, onReset}) {
         setShowEditDialog(true);
     };
 
-    const handleCloseDialog = () => {
-        onReset();
+    const handleCloseDialog = () => {        
         setShowEditDialog(false);
+        onReset();
     };
 
     const handleUpdateChannelName = (newName) => {
-        onReset();
         setChannelName(newName);
         setShowEditDialog(false);
+        onReset();
     };
 
     const handleOpenDeleteDialog = () => {
@@ -45,7 +45,7 @@ function ListHeader({addUser, channelName, channelId, onReset}) {
             </div>
             <div className="list-editBtn">
             {channelId === 1 ? <></> : <Mode onClick={handleOpenDialog} style={{ color: "white", justifyContent: 'space-between' }} />}
-            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName} onSubmit={handleUpdateChannelName}  channelId = {channelId} name = {chanName}/>}
+            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName} onSubmit={handleUpdateChannelName}   channelId = {channelId} name = {chanName}/>}
             </div>
             <div className="list-deleteBtn">
             {channelId === 1 ? <></> : <Delete onClick={handleOpenDeleteDialog} style={{ color: "white" }} />}
