@@ -1,10 +1,41 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {createPortal} from 'react-dom';
-import CloseIcon from "@mui/icons-material/Close"
+import CloseIcon from "@mui/icons-material/Close";
+import {useLocation, useNavigate} from "react-router-dom";
+import axios from "axios";
 
-const ChannelDelete = ({children, onClose}) => {
-    const [input, setInput] = useState("");
+const ChannelDelete = ({children, onClose, channelId}) => {
 
+    function deleteChannel() {
+        console.log("del"+id);
+        return axios.delete("https://127.0.0.1/channel/" + id)
+    }
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [previousPath, setPreviousPath] = useState("");
+    const [id, setId] = useState(channelId);
+    const [name, setChannelName] = useState("");
+
+    useEffect(() => {
+        setPreviousPath(location.pathname);
+    }, [location]);
+    useEffect(() => {
+        
+    }, []);
+
+    const handleSubmit = () => {
+        if (id !== 1) {
+            deleteChannel().then((response) => {
+                console.log(previousPath);
+                navigate(previousPath); // Navigate back to the original route
+                onClose();
+            }).catch((error) => {
+                    console.error(error)
+                }
+            )
+        }
+    };
 
     return createPortal(
         <div className="dialog">
@@ -20,7 +51,7 @@ const ChannelDelete = ({children, onClose}) => {
 
                 <div className="bottom">
                     <button onClick={onClose} className="cancel">취소</button>
-                    <button className="delete">삭제하기</button>
+                    <button onClick={handleSubmit} className="delete">삭제하기</button>
                 </div>
             </div>
         </div>,

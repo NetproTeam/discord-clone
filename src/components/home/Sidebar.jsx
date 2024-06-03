@@ -19,16 +19,26 @@ function getChannelList() {
 
 function Sidebar(props) {
     const [showDialog, setShowDialog] = useState(false);
+    const [channelList, setChannelList] = useState(null);
 
     const handleOpenDialog = () => {
         setShowDialog(true);
     };
 
     const handleCloseDialog = () => {
+        resetList();
         setShowDialog(false);
     };
 
-    const [channelList, setChannelList] = useState(null);
+    const resetList = () => {
+        getChannelList().then((response) => {
+            setChannelList(response.data);
+        }).catch((error) => {
+            console.error(error);
+        })
+    }
+
+    
 
     useEffect(() => {
         getChannelList().then((response) => {
@@ -50,13 +60,13 @@ function Sidebar(props) {
                     <div className="header">
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog}/>
+                    <AddIcon onClick={handleOpenDialog} channelName={props.channelName}/>
 
-                    {showDialog && <Dialog onClose={handleCloseDialog}/>}
+                    {showDialog && <Dialog  onClose={handleCloseDialog}/>}
                 </div>
                 {
                     channelList && channelList.map((data) => {
-                        return <ChannelList key={data.id} channelName={data.name}/>
+                        return <ChannelList key={data.id} onReset = {resetList} channelId = {data.id} channelName={data.name}/>
                     })
                 }
             </div>

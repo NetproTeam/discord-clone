@@ -7,16 +7,17 @@ import ChannelEdit from "./ChannelEdit";
 import ChannelDelete from "./ChannelDelete";
 import axios from "axios";
 
-function ListHeader(props) {
+function ListHeader({addUser, channelName, channelId, onReset}) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [channelName, setChannelName] = useState(props.channelName);
-
+    const [chanName, setChannelName] = useState(channelName);
+ 
     const handleOpenDialog = () => {
         setShowEditDialog(true);
     };
 
     const handleCloseDialog = () => {
+
         setShowEditDialog(false);
     };
 
@@ -26,29 +27,31 @@ function ListHeader(props) {
     };
 
     const handleOpenDeleteDialog = () => {
+        console.log("chanlist "+channelId);
         setShowDeleteDialog(true);
     };
 
     const handleCloseDeleteDialog = () => {
+        onReset();
         setShowDeleteDialog(false);
     };
 
     return (
         <div className="list-header">
             <div className="list-joinBtn">
-            <button onClick={props.addUser} style={{ display: 'flex', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer' }}>
+            <button onClick={addUser} style={{ display: 'flex', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer' }}>
                 <SoundIcon style={{color: "white"}} />
                 <h4 style={{ marginLeft: '10px',display: "inline-block", color: "white" }}>
-                    {props.channelName}</h4>
+                    {chanName}</h4>
             </button>
             </div>
             <div className="list-editBtn">
-            <Mode onClick={handleOpenDialog} style={{ color: "white", justifyContent: 'space-between' }} />
-            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={channelName} onSubmit={handleUpdateChannelName} />}
+            {channelId === 1 ? <></> : <Mode onClick={handleOpenDialog} style={{ color: "white", justifyContent: 'space-between' }} />}
+            {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName} onSubmit={handleUpdateChannelName} />}
             </div>
             <div className="list-deleteBtn">
-            <Delete onClick={handleOpenDeleteDialog} style={{ color: "white" }} />
-            {showDeleteDialog && <ChannelDelete onClose={handleCloseDeleteDialog} />}
+            {channelId === 1 ? <></> : <Delete onClick={handleOpenDeleteDialog} style={{ color: "white" }} />}
+            {showDeleteDialog && <ChannelDelete onClose={handleCloseDeleteDialog} channelId = {channelId} name = {chanName}/>}
             </div>
         </div>
     );
@@ -64,6 +67,7 @@ function User(props) {
 
 function ChannelList(props) {
     const [showUser, setShowUser] = useState(false);
+    const [channelId, setChannelId] = useState(props.channelId);
 
     console.log(props.channelName);
     const addUser = () => {
@@ -71,7 +75,7 @@ function ChannelList(props) {
     };
     return (
         <div className="channel-detail">
-            <ListHeader channelName={props.channelName} addUser={addUser}/>
+            <ListHeader channelName={props.channelName} onReset={props.onReset} channelId={channelId}  addUser={addUser}/>
             
             {/*{props.users.map( user =>*/}
             {/*    <User key={user.index} username={user.name}/>*/}
