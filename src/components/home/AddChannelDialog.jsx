@@ -5,7 +5,7 @@ import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 
 const AddChannelDialog = ({children, onClose}) => {
-    
+
     function postChannelName(channelName) {
         return axios.post("https://127.0.0.1/channel", {name: channelName})
     }
@@ -18,9 +18,6 @@ const AddChannelDialog = ({children, onClose}) => {
     useEffect(() => {
         setPreviousPath(location.pathname);
     }, [location]);
-    useEffect(() => {
-        
-    }, []);
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
