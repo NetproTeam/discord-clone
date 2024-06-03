@@ -38,7 +38,11 @@ function Sidebar(props) {
         })
     }
 
-    
+    const setChannel = (name, id) => {
+        console.log(name, id)
+        props.setChannelName(name);
+        props.setId(id);
+    }
 
     useEffect(() => {
         getChannelList().then((response) => {
@@ -62,11 +66,12 @@ function Sidebar(props) {
                     </div>
                     <AddIcon onClick={handleOpenDialog} channelName={props.channelName}/>
 
-                    {showDialog && <Dialog  onClose={handleCloseDialog}/>}
+                    {showDialog && <Dialog onClose={handleCloseDialog}/>}
                 </div>
                 {
                     channelList && channelList.map((data) => {
-                        return <ChannelList key={data.id} onReset = {resetList} channelId = {data.id} channelName={data.name}/>
+                        return <ChannelList key={data.id} onReset={resetList} channelId={data.id} channelName={data.name}
+                                            setChannel={setChannel}/>
                     })
                 }
             </div>
