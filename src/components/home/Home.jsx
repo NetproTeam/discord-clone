@@ -16,7 +16,9 @@ function Home() {
     const serverConnection = useRef(null);
     const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
-
+    const [localStream, setLocalStream] = useState(null);
+    const yourConn = useRef(null);
+    const [remoteVideo, setRemoteVideo] = useState(null);
 
     useEffect(() => {
         setPeerConfig({
@@ -33,12 +35,44 @@ function Home() {
         }
         serverConnection.current.onmessage = handleMessageFromServer;
 
+        let constraints = {
+            video: true,
+            audio: true
+        }
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler)
+        } else {
+            alert("브라우저가 미디어 API를 지원하지 않음")
+        }
+
         return () => {
             if (serverConnection.current) {
                 serverConnection.current.close();
             }
         };
     }, []);
+
+    const getRemoteStream = (event) => {
+        remoteVideo.srcObject = event.stream[0]
+    }
+
+    const getUserMediaSuccess = (stream) => {
+        setLocalStream(stream);
+        const yourConnection = new RTCPeerConnection(peerConnectionConfig)
+
+        yourConnection.onicecandidate = (event) => {
+            console.log("on icecandidate get user success:", event.candidate);
+            if (event.candidate) {
+                send({
+                    type: "candidate",
+                    candidate: event.candidate
+                });
+            }
+        };
+        yourConnection.ontrack = getRemoteStream;
+        yourConnection.addStream(stream);
+        yourConn.current = yourConnection
+    }
 
     const send = (message) => {
         if (connectedUser) {
@@ -48,6 +82,15 @@ function Home() {
         serverConnection.current.send(JSON.stringify(message))
     }
 
+    const handleAnswer = (answer) => {
+        console.log("answer:", answer)
+        yourConn.current.setRemoteDescription(new RTCSessionDescription(answer))
+    }
+
+    const handleCandidate = (candidate) => {
+        yourConn.current.addIceCandidate(new RTCIceCandidate(candidate))
+    }
+
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
 
@@ -55,11 +98,16 @@ function Home() {
         switch (data.type) {
             case "offer":
                 console.log("====offer====")
-                // handleOffer(data.offer, data.name)
+                console.log(data)
+                handleOffer(data.data, data.name)
                 break;
             case "ice":
                 console.log("====ice====")
-                // handleIce
+                handleCandidate(data.data)
+                break;
+            case "answer":
+                console.log("====answer====")
+                handleAnswer(data.data)
                 break;
             case "state":
                 setChannelList(JSON.parse(data.data).sort((a, b) => a.id - b.id))
@@ -71,6 +119,20 @@ function Home() {
     }
 
     const joinChannel = (id) => {
+        if (yourConn.current) {
+            yourConn.current.createOffer((offer) => {
+                send({
+                    type: "offer",
+                    from: username,
+                    data: id,
+                    candidate: "",
+                    sdp: offer.sdp
+                })
+            }, error => {
+                console.error("offer ", error)
+            })
+        }
+
         send({
             type: "join",
             from: username,
@@ -85,6 +147,24 @@ function Home() {
             type: "leave",
             from: username,
             data: id
+        })
+    }
+
+    const handleOffer = (offer, name) => {
+        yourConn.current.setRemoteDescription(new RTCSessionDescription({offer: offer}))
+
+        yourConn.current.createAnswer((answer) => {
+            yourConn.current.setLocalDescription(answer)
+
+            send({
+                type: "answer",
+                from: username,
+                data: id,
+                candidate: "",
+                sdp: answer.sdp
+            })
+        }, (error) => {
+            alert("answer error")
         })
     }
 
@@ -105,6 +185,10 @@ function Home() {
         leaveChannel();
         joinChannel(id);
         setId(id);
+    }
+
+    const errorHandler = (error) => {
+        console.error(error)
     }
 
     return (

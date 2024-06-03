@@ -33,7 +33,7 @@ function Sidebar(props) {
 
     const resetList = () => {
         getChannelList().then((response) => {
-            props.setChannelList(response.data);
+            props.setChannelList(response.data.sort((a, b) => a.id - b.id));
         }).catch((error) => {
             console.error(error);
         })

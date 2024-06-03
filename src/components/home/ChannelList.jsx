@@ -86,7 +86,7 @@ function ChannelList(props) {
                         addUser={addUser}/>
 
             {props.client && props.client.map(user => {
-                    return <User key={user.index} username={user}/>
+                    return <User username={user}/>
                 }
             )}
 
