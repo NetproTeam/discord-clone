@@ -57,7 +57,7 @@ function Sidebar(props) {
                     <div className="header">
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog} channelName={props.channelName}/>
+                    <AddIcon onClick={handleOpenDialog} name={props.channelName}/>
 
                     {showDialog && <Dialog onClose={handleCloseDialog}/>}
                 </div>

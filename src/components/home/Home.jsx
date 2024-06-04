@@ -4,6 +4,11 @@ import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
 import ChatScreen from "./ChatScreen";
 import { set } from 'react-hook-form';
+import axios from 'axios';
+
+function getChannelList() {
+    return axios.get("https://localhost/channel");
+}
 
 function Home() {
     const {username} = useParams();
@@ -13,14 +18,14 @@ function Home() {
     const [myMikeState, setmyMikeState] = useState(false);
     const [id, setId] = useState(1);
     const [channelList, setChannelList] = useState([])
-
+    let peers = {};
     const serverConnection = useRef(null);
     const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
     const [localStream, setLocalStream] = useState(null);
-    const firstConn = useRef(null)
-    const yourConn = useRef([]);
-    const [remoteVideo, setRemoteVideo] = useState({});
+    const firstConn = useRef(null);
+    const yourConn = useRef(null);
+    const remoteVideo = useRef(null);
 
     useEffect(() => {
         setPeerConfig({
@@ -29,24 +34,42 @@ function Home() {
                 {'urls': 'stun:stun.l.google.com:19302'},
             ]
         });
-
-        serverConnection.current = new WebSocket("https://127.0.0.1/signal");
-        serverConnection.current.onopen = () => {
+        // getChannelList().then((response) => {
+        //     setChannelList(response.data.sort((a, b) => a.id - b.id));
+        // }).catch((error) => {
+        //     console.error(error);
+        // })
+        serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
+        serverConnection.current.onopen = async () => {
             console.log("Server connected...");
-            joinChannel(1);
+            const yourConnection = await new RTCPeerConnection(peerConnectionConfig)
+
+            yourConnection.onicecandidate = (event) => {
+                console.log("on icecandidate get user success:", event.candidate);
+                if (event.candidate) {
+                    send({
+                        type: "ice",
+                        from: username,
+                        candidate: event.candidate
+                    });
+                }
+            };
+            yourConn.current = yourConnection;
+            await joinChannel(1);
         }
         serverConnection.current.onmessage = handleMessageFromServer;
-
+        
         let constraints = {
             video: true,
             audio: true
         }
+        
+
         if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler)
+            navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
         } else {
             alert("브라우저가 미디어 API를 지원하지 않음")
         }
-
         return () => {
             if (serverConnection.current) {
                 serverConnection.current.close();
@@ -55,38 +78,41 @@ function Home() {
     }, []);
 
     const getRemoteStream = (event) => {
-        setRemoteVideo(event.streams[0]);
+        //For Test
+        setCameraCount(1);
+        remoteVideo.current.srcObject = event.streams[0];
     }
-
-    const getUserMediaSuccess = (stream) => {
-        setLocalStream(stream);
-        const yourConnection = new RTCPeerConnection(peerConnectionConfig)
-
-        yourConnection.onicecandidate = (event) => {
+    const createPeerConnection = () => {
+        const pc = new RTCPeerConnection(peerConnectionConfig);
+        pc.onicecandidate = (event) => {
             console.log("on icecandidate get user success:", event.candidate);
             if (event.candidate) {
                 send({
                     type: "ice",
+                    from: username,
                     candidate: event.candidate
                 });
             }
         };
-        yourConnection.ontrack = getRemoteStream;
-        yourConnection.addStream(stream);
-        yourConn.push(yourConnection);
+    }
+    const getUserMediaSuccess = (stream) => {
+        setLocalStream(stream);
+        yourConn.current.ontrack = getRemoteStream;
+        yourConn.current.addStream(stream);
     }
 
     const send = (message) => {
-        if (connectedUser) {
-            message.name = connectedUser;
-        }
         console.log("message to server:", message);
         serverConnection.current.send(JSON.stringify(message))
     }
 
     const handleAnswer = (answer) => {
         console.log("answer:", answer)
-        yourConn.current.setRemoteDescription(new RTCSessionDescription(answer))
+        console.log("yourConn:", yourConn.current)
+        yourConn.current.setRemoteDescription(new RTCSessionDescription({
+            type: 'answer',
+            sdp: answer.sdp
+        }))
     }
 
     const handleCandidate = (candidate) => {
@@ -96,17 +122,15 @@ function Home() {
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
-
-        console.log(data.type)
+        console.log(message)
         switch (data.type) {
             case "offer":
                 console.log("====offer====")
-                console.log(data)
-                handleOffer(data, data.name)
+                handleOffer(data)
                 break;
             case "ice":
                 console.log("====ice====")
-                handleCandidate(data)
+                handleCandidate(data.candidate)
                 break;
             case "answer":
                 console.log("====answer====")
@@ -122,26 +146,26 @@ function Home() {
     }
 
     const joinChannel = (id) => {
-        if (yourConn.current) {
-            yourConn.current.createOffer((offer) => {
-                send({
-                    type: "offer",
-                    from: username,
-                    data: id,
-                    candidate: "",
-                    sdp: offer.sdp
-                })
-            }, error => {
-                console.error("offer ", error)
-            })
-        }
-
         send({
             type: "join",
             from: username,
             data: id,
             candidate: "",
             sdp: "",
+        })
+        yourConn.current.createOffer((offer) => {
+            console.log("offer", offer)
+            send({
+                type: "offer",
+                from: username,
+                data: id,
+                candidate: "",
+                sdp: offer.sdp
+            })
+
+            yourConn.current.setLocalDescription(offer)
+        }, error => {
+            console.error("offer ", error)
         })
     }
 
@@ -153,13 +177,10 @@ function Home() {
         })
     }
 
-    const handleOffer = (offer, name) => {
+    const handleOffer = (offer) => {
         console.log(offer)
-        console.log(yourConn.current);
-        yourConn.current.setRemoteDescription(new RTCSessionDescription({
-            type: offer.type,
-            sdp: offer.sdp
-        }))
+
+        yourConn.current.setRemoteDescription(new RTCSessionDescription(offer))
 
         yourConn.current.createAnswer((answer) => {
             yourConn.current.setLocalDescription(answer)
@@ -167,7 +188,7 @@ function Home() {
             send({
                 type: "answer",
                 from: username,
-                data: id,
+                data: offer.data,
                 candidate: "",
                 sdp: answer.sdp
             })
@@ -205,7 +226,7 @@ function Home() {
                      onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
                      setChannelName={chanName} setId={setChannel} channelList={channelList}
                      setChannelList={setChannelList}/>
-            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState}/>
+            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo}/>
             {/*<ChatScreen channelName={channelName} id={id} name={username}/>*/}
         </div>
     );
