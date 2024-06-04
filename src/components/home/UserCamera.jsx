@@ -23,7 +23,7 @@ function UserCamera({myCameraState, remoteVideo, isCameraOn}) {
 
     const stopWebcam = () => {
         try {
-            if (!videoRef.current.srcObject) return;
+            if (!isCameraOn || !videoRef.current.srcObject) return;
             const stream = videoRef.current.srcObject;
             const tracks = stream.getTracks();
 

@@ -3,12 +3,14 @@ import {useParams} from 'react-router-dom';
 import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
 import ChatScreen from "./ChatScreen";
-import { set } from 'react-hook-form';
+import {set} from 'react-hook-form';
 import axios from 'axios';
 
 function getChannelList() {
     return axios.get("https://localhost/channel");
 }
+
+const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
 
 function Home() {
     const {username} = useParams();
@@ -53,12 +55,12 @@ function Home() {
             await joinChannel(1);
         }
         serverConnection.current.onmessage = handleMessageFromServer;
-        
+
         let constraints = {
             video: true,
             audio: true
         }
-        
+
 
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
@@ -221,7 +223,7 @@ function Home() {
                      onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
                      setChannelName={chanName} setId={setChannel} channelList={channelList}
                      setChannelList={setChannelList}/>
-            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo} cameraList={[{isCameraOn: false}, {isCameraOn: false}]}/>
+            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo} cameraList={cameraListDummy}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
