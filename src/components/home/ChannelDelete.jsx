@@ -5,10 +5,8 @@ import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 
 const ChannelDelete = ({children, onClose, channelId}) => {
-
     function deleteChannel() {
-        
-        return axios.delete("https://127.0.0.1/channel/" + id)
+        return axios.delete("https://127.0.0.1/channel/" + channelId)
     }
 
     function getChannelList() {
@@ -18,10 +16,7 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [previousPath, setPreviousPath] = useState("");
-    const [id, setId] = useState(channelId);
-    const [name, setChannelName] = useState("");
-    const [found, setFound] = useState(true);
-
+    
     useEffect(() => {
         setPreviousPath(location.pathname);
     }, [location]);
@@ -30,24 +25,17 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     }, []);
 
     const handleSubmit = () => {
-        console.log("del "+ id);
         getChannelList().then(response => {            
             // 서버에서 접속한 ID 갯수를 'count' 필드로 반환한다고 가정
-            console.log(response);
-            console.log("length "+response.data.length);
             let i = 1;
             
             for (let index = 0; index < response.data.length; index++) {
-                if(response.data[index].id === id){
-                    console.log("found chan");
-                    console.log(response.data[index]);
+                if(response.data[index].id === channelId){
                     i = index;
                     break; 
                 }
             }
             if (response.data[i].clients.length <= 0) {
-                console.log("client") 
-                console.log( response.data[i].clients);
                 deleteChannel().then((response) => {
                     navigate(previousPath); // Navigate back to the original route
                     onClose();
@@ -56,6 +44,7 @@ const ChannelDelete = ({children, onClose, channelId}) => {
                     }
                 )
             }else{
+                alert("채널에 사용자가 있습니다.")
                 navigate(previousPath); // Navigate back to the original route
                 onClose();
             }

@@ -14,20 +14,17 @@ const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
 
 function Home() {
     const {username} = useParams();
+    const [id, setId] = useState(1);
     const [channelName, setChannelName] = useState("");
+    const [channelList, setChannelList] = useState([])
     const [myCameraState, setMyCameraState] = useState(false);
     const [myMikeState, setMyMikeState] = useState(false);
-    const [id, setId] = useState(1);
-    const [channelList, setChannelList] = useState([])
     let peers = {};
     const serverConnection = useRef(null);
-    const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
     const [localStream, setLocalStream] = useState(null);
-    const firstConn = useRef(null);
     const yourConn = useRef(null);
-    const remoteVideo = useRef(null);
-
+    
     useEffect(() => {
         setPeerConfig({
             'iceServers': [
@@ -37,11 +34,9 @@ function Home() {
         });
         serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
-            console.log("Server connected...");
             const yourConnection = await new RTCPeerConnection(peerConnectionConfig)
 
             yourConnection.onicecandidate = (event) => {
-                console.log("on icecandidate get user success:", event.candidate);
                 if (event.candidate) {
                     send({
                         type: "ice",
@@ -86,7 +81,6 @@ function Home() {
     const createPeerConnection = () => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = (event) => {
-            console.log("on icecandidate get user success:", event.candidate);
             if (event.candidate) {
                 send({
                     type: "ice",
@@ -103,13 +97,10 @@ function Home() {
     }
 
     const send = (message) => {
-        console.log("message to server:", message);
         serverConnection.current.send(JSON.stringify(message))
     }
 
     const handleAnswer = (answer) => {
-        console.log("answer:", answer)
-        console.log("yourConn:", yourConn.current)
         yourConn.current.setRemoteDescription(new RTCSessionDescription({
             type: 'answer',
             sdp: answer.sdp
@@ -117,13 +108,11 @@ function Home() {
     }
 
     const handleCandidate = (candidate) => {
-        console.log("candidate:", candidate)
         yourConn.current.addIceCandidate(new RTCIceCandidate(candidate))
     }
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
-        console.log(message)
         switch (data.type) {
             case "offer":
                 console.log("====offer====")
@@ -179,8 +168,7 @@ function Home() {
     }
 
     const handleOffer = (offer) => {
-        console.log(offer)
-
+        
         yourConn.current.setRemoteDescription(new RTCSessionDescription(offer))
 
         yourConn.current.createAnswer((answer) => {
@@ -198,10 +186,16 @@ function Home() {
         })
     }
 
+    //leave channel
     const setChannel = (id) => {
         leaveChannel();
         joinChannel(id);
         setId(id);
+        setChannelName(channelList.map(channel => {
+            if (channel.id === id) {
+                return channel.name
+            }
+        }))
     }
 
     const errorHandler = (error) => {
@@ -213,7 +207,7 @@ function Home() {
             <Sidebar username={username} 
                 setMyMikeState={() => setMyMikeState(!myMikeState)} myMikeState={myMikeState}
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
-                setChannelName={setChannelName} setId={setChannel} currentChannelList={channelList}
+                setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
             <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} cameraList={cameraListDummy}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>

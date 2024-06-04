@@ -4,25 +4,23 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 
-const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}) => {
+const ChannelEdit = ({children, onClose, initialChannelName, channelId, onSubmit}) => {
 
     function patchChannelName(channelName) {
-        return axios.patch("https://127.0.0.1/channel/"+id, { name: channelName }); // 포트 번호 확인
+        return axios.patch("https://127.0.0.1/channel/"+channelId, { name: channelName }); // 포트 번호 확인
     }
     const [input, setInput] = useState(initialChannelName);
-    const [name, setChannelName] = useState(initialChannelName);
 
     const navigate = useNavigate();
     const location = useLocation();
     const [previousPath, setPreviousPath] = useState("");
-    const [id, setId] = useState(channelId);
 
     useEffect(() => {
         setPreviousPath(location.pathname);
     }, [location]);
 
     const handleSubmit = () => {
-        if (id !== 1) {
+        if (channelId !== 1) {
             patchChannelName(input).then((response) => {
                 onSubmit(input);
                 navigate(previousPath); // Navigate back to the original route
@@ -36,7 +34,6 @@ const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
-        setChannelName(input);
     };
 
     return createPortal(
@@ -50,7 +47,7 @@ const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}
                 <div className="body">
                     <h5>채널 이름</h5>
                     <input 
-                        placeholder={`#${name}`}
+                        placeholder={`#${input}`}
                         onChange={handleInputChange}/>
                 </div>
                 <div className="bottom">

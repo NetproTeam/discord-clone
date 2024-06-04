@@ -17,7 +17,7 @@ function UserScreen({myCameraState, myMikeState, cameraList}) {
 
     const turnOffMyCam = () => {
         try {
-            if (!localStream) return;
+            if (!localStream.current) return;
             const tracks = localStream.current.getTracks();
 
             tracks.forEach(track => track.stop());
@@ -30,7 +30,6 @@ function UserScreen({myCameraState, myMikeState, cameraList}) {
     useEffect(() => {
         if (myCameraState || myMikeState) {
             turnOnMyCam()
-            console.log("localStream: ", localStream.current)
         } else {
             turnOffMyCam()
         }

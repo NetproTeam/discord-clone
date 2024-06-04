@@ -7,12 +7,7 @@ import MicOnIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ChannelList from "./ChannelList";
 import Dialog from "./AddChannelDialog";
-import UserScreen from './UserScreen';
-import Home from './Home';
-import UserCamera from './UserCamera';
-import UserVoice from './UserVoice';
 import axios from "axios";
-import PropTypes from "prop-types";
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
@@ -36,7 +31,7 @@ function getChannelList() {
     return axios.get("https://127.0.0.1/channel")
 }
 
-function Sidebar({currentChannelList, setChannelList, channelName, setChannelName, setId, myMikeState, setMyMikeState, setMyCameraState, myCameraState, username}) {
+function Sidebar({currentChannelList, setChannelList, channelName, setChannel, myMikeState, setMyMikeState, setMyCameraState, myCameraState, username}) {
     const [showDialog, setShowDialog] = useState(false);
 
     const handleOpenDialog = () => {
@@ -58,11 +53,6 @@ function Sidebar({currentChannelList, setChannelList, channelName, setChannelNam
         }).catch((error) => {
             console.error(error);
         })
-    }
-
-    const setChannel = (name, id) => {
-        setChannelName(name);
-        setId(id);
     }
 
     return (
