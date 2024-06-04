@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import UserCamera from "./UserCamera";
 
-function UserScreen({myCameraState, myMikeState, cameraList}) {
+function UserScreen({myCameraState, myMikeState, streams}) {
+    // console.log(peers.current)
     const localStream = useRef(null);
     const turnOnMyCam = async () => {
         try {
@@ -40,8 +41,8 @@ function UserScreen({myCameraState, myMikeState, cameraList}) {
             <div>
                 <UserCamera key={0} stream={localStream.current} isHidden={!myCameraState}/>
 
-                {cameraList.map((camera, index) => (
-                    <UserCamera key={index + 1} stream={null} isHidden={true}/>
+                {streams.map((stream, index) => (
+                    <UserCamera key={index + 1} stream={stream} isHidden={false}/>
                 ))}
             </div>
 
