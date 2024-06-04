@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import axios from "axios";
+import PopError from "../home/PopError";
 
 function postUserName(username) {
     return axios.post("https://127.0.0.1/login", {name: username})
@@ -9,6 +10,15 @@ function postUserName(username) {
 function Login() {
     let navigate = useNavigate()
     const [input, setInput] = useState('');
+    const [showError, setShowError] = useState(false);
+
+    const handleOpenError = () => {
+        setShowError(true);
+    };
+
+    const handleCloseError = () => {
+        setShowError(false);
+    };
 
     const handleInputChange = (e) => {
         setInput(e.target.value);
@@ -21,11 +31,17 @@ function Login() {
                 const name = encodeURIComponent(response.data.uniqueUserName);
                 navigate(`/home/${name}`);
             }).catch((error) => {
+                    console.log("max count")
+                    handleOpenError();
                     console.error(error)
                 }
             )
         }
     };
+
+    const hadlePopError = () => {
+
+    }
 
     return (
         <div className="container">
@@ -34,7 +50,13 @@ function Login() {
                 e.preventDefault();
             }}>
                 <input value={input} onInput={handleInputChange} type="text" placeholder="닉네임을 입력하세요"/>
-                <button type={"submit"} onClick={handleLogin}>로그인</button>
+                <button
+                type={"submit"}
+                onClick={handleLogin}>로그인</button>
+                <div className="popError">
+                    {showError ? <PopError onClose={handleCloseError}/> :
+                    <></> }
+                </div>
             </form>
         </div>
     );
