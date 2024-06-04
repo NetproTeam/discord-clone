@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 
-function UserCamera({myCameraState, remoteVideo}) {
+function UserCamera({myCameraState, remoteVideo, isCameraOn}) {
     const videoRef = useRef(null);
     const [streaming, setStreaming] = useState(false);
     console.log("remoteVideo")
@@ -23,7 +23,7 @@ function UserCamera({myCameraState, remoteVideo}) {
 
     const stopWebcam = () => {
         try {
-            if(!videoRef.current.srcObject) return;
+            if (!videoRef.current.srcObject) return;
             const stream = videoRef.current.srcObject;
             const tracks = stream.getTracks();
 
@@ -43,16 +43,20 @@ function UserCamera({myCameraState, remoteVideo}) {
     }, [myCameraState])
 
     return (
-            <div className="camera">
-            {remoteVideo ? <div>상대방</div> : <div>나</div>}
-            <video
-                ref={remoteVideo ? remoteVideo : videoRef}
-                autoPlay
-                style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
-            </video>
+        <div className="camera">
+            {
+                (!remoteVideo && myCameraState) || isCameraOn ?
+                    <video
+                        ref={remoteVideo ? remoteVideo : videoRef}
+                        autoPlay
+                        style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
+                    </video>
+                    :
+                    <img src="/dummy-user.png" style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "75%"}}/>
+            }
         </div>
     );
-    
+
 }
 
 export default UserCamera;

@@ -221,7 +221,7 @@ function Home() {
                      onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
                      setChannelName={chanName} setId={setChannel} channelList={channelList}
                      setChannelList={setChannelList}/>
-            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo}/>
+            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo} cameraList={[{isCameraOn: false}, {isCameraOn: false}]}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
