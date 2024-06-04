@@ -4,11 +4,6 @@ import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
 import ChatScreen from "./ChatScreen";
 import { set } from 'react-hook-form';
-import axios from 'axios';
-
-function getChannelList() {
-    return axios.get("https://localhost/channel");
-}
 
 function Home() {
     const {username} = useParams();
@@ -19,6 +14,8 @@ function Home() {
     const [id, setId] = useState(1);
     const [channelList, setChannelList] = useState([])
     let peers = {};
+    let pendingCandidates = {};
+    let remoteVideos = {};
     const serverConnection = useRef(null);
     const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
@@ -79,17 +76,22 @@ function Home() {
     }
     const createPeerConnection = () => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
-        pc.onicecandidate = (event) => {
-            console.log("on icecandidate get user success:", event.candidate);
-            if (event.candidate) {
-                send({
-                    type: "ice",
-                    from: username,
-                    candidate: event.candidate
-                });
-            }
-        };
+        pc.onicecandidate = onIceCandidate;
+        pc.ontrack = getRemoteStream;
+        pc.addStream(localStream);
+        return pc;
     }
+    const onIceCandidate = (event) => {
+        console.log("on icecandidate get user success:", event.candidate);
+        if (event.candidate) {
+            send({
+                type: "ice",
+                from: username,
+                candidate: event.candidate
+            });
+        }
+    };
+
     const getUserMediaSuccess = (stream) => {
         setLocalStream(stream);
         yourConn.current.ontrack = getRemoteStream;
