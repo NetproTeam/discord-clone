@@ -3,8 +3,8 @@ import React, {useEffect, useRef, useState} from 'react';
 function UserCamera({myCameraState, remoteVideo}) {
     const videoRef = useRef(null);
     const [streaming, setStreaming] = useState(false);
-    console.log("remoteVideo")
-    console.log(remoteVideo)
+    // console.log("remoteVideo")
+    // console.log(remoteVideo)
     const startWebcam = async () => {
         try {
             if (remoteVideo === undefined) {

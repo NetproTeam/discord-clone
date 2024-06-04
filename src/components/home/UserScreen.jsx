@@ -5,7 +5,7 @@ import CameraOffIcon from "@mui/icons-material/VideocamOff";
 
 function UserScreen({myCameraState, remoteVideo, cameraCount}) {
     const [input, setCam] = useState("");
-    console.log("cameraCount", cameraCount)
+    // console.log("cameraCount", cameraCount)
     return (
         <div className="user-screen">
             <div>
