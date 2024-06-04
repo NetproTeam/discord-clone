@@ -31,7 +31,6 @@ function Login() {
                 const name = encodeURIComponent(response.data.uniqueUserName);
                 navigate(`/home/${name}`);
             }).catch((error) => {
-                    console.log("max count")
                     handleOpenError();
                     console.error(error)
                 }

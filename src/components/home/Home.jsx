@@ -35,20 +35,6 @@ function Home() {
         serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
             console.log("Server connected...");
-            // const yourConnection = await new RTCPeerConnection(peerConnectionConfig)
-
-            // yourConnection.onicecandidate = (event) => {
-            //     console.log("on icecandidate get user success:", event.candidate);
-            //     if (event.candidate) {
-            //         send({
-            //             type: "ice",
-            //             from: username,
-            //             candidate: event.candidate
-            //         });
-            //     }
-            // };
-            // yourConn.current = yourConnection;
-            // await sendJoin(1); // TODO: 지워도 될듯
         }
         serverConnection.current.onmessage = handleMessageFromServer;
         
@@ -59,7 +45,6 @@ function Home() {
         
 
         if (navigator.mediaDevices.getUserMedia) {
-            console.log("getUserMedia supported.")
             navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
         } else {
             alert("브라우저가 미디어 API를 지원하지 않음")
@@ -83,28 +68,12 @@ function Home() {
         pc.ontrack = (event) => {
             peers.current[peerName].remoteStream = event.streams[0];
         };
-        // console.log("localStream")
-        // console.log(localStream.current)
         pc.addStream(localStream.current);
 
         return pc;
     }
 
-    // const createPeerConnection = (sid) => {
-    //     const pc = new RTCPeerConnection(peerConnectionConfig);
-    //     pc.onicecandidate = onIceCandidate;
-    //     pc.ontrack = (event) => {
-    //         console.log("ontrack", event)
-    //         setCameraCount(1);
-    //         remoteVideos.current[sid].srcObject = event.streams[0];
-    //     };
-    //     // pc.onaddstream = onAddStream();
-    //     pc.addStream(localStream);
-    //     return pc;
-    // }
-
     const onIceCandidate = (event) => {
-        console.log("on icecandidate get user success:", event.candidate);
         if (event.candidate) {
             send({
                 type: "ice",
@@ -115,53 +84,11 @@ function Home() {
     };
 
     const getUserMediaSuccess = (stream) => {
-        console.log("getUserMediaSuccess")
-        console.log(stream)
         localStream.current = stream;
-        console.log(localStream.current)
-        // yourConn.current.ontrack = getRemoteStream;
-        // yourConn.current.addStream(stream);
     }
 
     const send = (message) => {
-        console.log("message to server:", message);
         serverConnection.current.send(JSON.stringify(message))
-    }
-
-    const sendOffer = (client, id) => {
-        peers[client].createOffer((offer) => {
-            console.log("offer", offer)
-            send({
-                type: "offer",
-                from: username,
-                data: id,
-                candidate: "",
-                sdp: offer.sdp,
-                other: {"to" : client}
-            })
-
-            peers[client].setLocalDescription(offer)
-        }, error => {
-            console.error("offer ", error)
-        })
-    }
-
-    const sendAnswer = (client, id) => {
-        console.log("sendAnswer")
-        peers[client].createAnswer((answer) => {
-            console.log("answer", answer)
-            send({
-                type: "answer",
-                from: username,
-                data: id,
-                candidate: "",
-                sdp: answer.sdp
-            })
-
-            peers[client].setLocalDescription(answer)
-        }, error => {
-            console.error("answer ", error)
-        })
     }
 
     const sendJoin = (channelId) => {
@@ -190,27 +117,20 @@ function Home() {
     }
 
     const handleJoin = (message) => {
-        console.log("[handleJoin] Client", message.from, "is ready to join channel no.", message)
-        console.log(message);
-
         if (message.data === '-1') return;
         // TODO: 기존의 peer들을 모두 정리하는 코드 필요함
         peers.current = {};
 
-        const peerNames = message.other.readyList; // TODO: other에 정확히 어떻게 넘어오는지는 서버 확인 후 변경
-        console.log("[handleJoin] Peer names are", peerNames)
+        const peerNames = message.other.readyList;
         peerNames.forEach((peerName) => {
-            console.log("[handleJoin] Client", message.from, "is creating connection with", peerName)
             const pc = createPeerConnection(peerName);
             peers.current[peerName] = {
                 connection: pc,
                 remoteStream: null,
                 streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
             }
-            console.log(peers.current)
 
             pc.createOffer((offer) => {
-                console.log("[handleJoin] Client", message.from, "is creating offer for", peerName)
                 pc.setLocalDescription(offer);
                 send({
                     type: "offer",
@@ -218,7 +138,7 @@ function Home() {
                     data: message.data,
                     candidate: "",
                     sdp: offer.sdp,
-                    other: "", // TODO: other가 어떤 type인지 확인 후 변경
+                    other: "",
                     to: peerName
                 });
             }, error => {
@@ -228,9 +148,6 @@ function Home() {
     }
 
     const handleOffer = (message) => {
-        console.log("[handleOffer] Client got offer from", message.from)
-        console.log(message);
-
         const pc = createPeerConnection(message.from);
 
         if (message.from in peers.current) {
@@ -262,47 +179,27 @@ function Home() {
     }
 
     const handleAnswer = (message) => {
-        console.log("[handleAnswer] Client got answer from", message.from);
-        console.log(message);
-        
         const connection = peers.current[message.from].connection;
-        console.log("[handleAnswer] Connection with Client ", message.from, " is")
-        console.log(connection)
-        
         connection.setRemoteDescription(new RTCSessionDescription(message))
     }
 
     const handleCandidate = (message) => {
-        console.log("[handleCandidate] Client got candidate message from", message.from)
-        console.log(message);
-
         const connection = peers.current[message.from].connection;
-        console.log("[handleCandidate] Connection with Client ", message.from, " is")
-        console.log(connection)
-        
         connection.addIceCandidate(new RTCIceCandidate(message))
     }
 
     const handleLeave = (message) => {
-        console.log("[handleLeave] Client", message.from, "left channel no.", message.data)
-        console.log(message);
-
         const connection = peers.current[message.from].connection;
         // TODO: clean up connection
         peers.current[message.from] = undefined;
     }
 
     const handleState = (message) => {
-        console.log("[handleState] Client got state message from server")
-        console.log(message);
         setChannelList(JSON.parse(message.data).sort((a, b) => a.id - b.id))
-        console.log(channelList)
     }
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
-        console.log("[handleMessageFromServer] 이건 message, 실 사용은 message.data")
-        console.log(message)
         switch (data.type) {
             case "offer":
                 handleOffer(data);
