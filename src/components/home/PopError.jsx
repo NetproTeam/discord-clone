@@ -4,7 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 
-const PopError = ({children, onClose}) => {
+const PopError = ({children, onClose, message}) => {
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -28,7 +28,7 @@ const PopError = ({children, onClose}) => {
                     <CloseIcon onClick={onClose}/>
                 </div>
                 <div className="body" style={{width:"400px", height: "50px"}}>
-                <h3>서버가 가득 찼습니다.</h3>
+                <h3>{message}</h3>
                 </div>
 
                 <div className="bottom">
