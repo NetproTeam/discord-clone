@@ -74,7 +74,8 @@ function Home() {
         pc.ontrack = (event) => {
             peers.current[peerName].remoteStream = event.streams[0];
         };
-        pc.addStream(localStream.current);
+        if(localStream.current)
+            pc.addStream(localStream.current);
 
         return pc;
     }
@@ -107,19 +108,20 @@ function Home() {
         })
     }
 
-    const sendLeave = () => {
+    const leaveChannel = () => {
         send({
             type: "leave",
             from: username,
             data: id
         })
-    }
-
-    const onAddStream = (event) => {
-        const newRemoteStreamElem = document.createElement('video');
-        newRemoteStreamElem.autoplay = true;
-        newRemoteStreamElem.srcObject = event.stream;
-        remoteVideos.current.push(newRemoteStreamElem);
+        for (let peer in peers.current) {
+            if (peers.current[peer] !== undefined) {
+                peers.current[peer].connection.close();
+                peers.current[peer] = undefined;
+                
+            }
+        }
+        console.log("leave channel: ", peers.current)
     }
 
     const handleJoin = (message) => {
@@ -195,9 +197,11 @@ function Home() {
     }
 
     const handleLeave = (message) => {
+        if (peers.current[message.from] === undefined) return;
         const connection = peers.current[message.from].connection;
-        // TODO: clean up connection
+        connection.close();
         peers.current[message.from] = undefined;
+        console.log("receive leave: ", peers.current)
     }
 
     const handleState = (message) => {
@@ -206,6 +210,7 @@ function Home() {
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
+        console.log(data)
         switch (data.type) {
             case "offer":
                 handleOffer(data);
@@ -222,13 +227,16 @@ function Home() {
             case "join":
                 handleJoin(data)
                 break;
+            case "leave":
+                handleLeave(data)
+                break;
             default:
                 break;
         }
     }
 
     const setChannel = (id) => {
-        sendLeave();
+        leaveChannel();
         sendJoin(id);
         setId(id);
         setChannelName(channelList.map(channel => {
