@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
@@ -15,7 +15,7 @@ function Home() {
     const [channelList, setChannelList] = useState([])
     let peers = {};
     let pendingCandidates = {};
-    let remoteVideos = {};
+    const remoteVideos = useRef({});
     const serverConnection = useRef(null);
     const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
@@ -34,19 +34,19 @@ function Home() {
         serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
             console.log("Server connected...");
-            const yourConnection = await new RTCPeerConnection(peerConnectionConfig)
+            // const yourConnection = await new RTCPeerConnection(peerConnectionConfig)
 
-            yourConnection.onicecandidate = (event) => {
-                console.log("on icecandidate get user success:", event.candidate);
-                if (event.candidate) {
-                    send({
-                        type: "ice",
-                        from: username,
-                        candidate: event.candidate
-                    });
-                }
-            };
-            yourConn.current = yourConnection;
+            // yourConnection.onicecandidate = (event) => {
+            //     console.log("on icecandidate get user success:", event.candidate);
+            //     if (event.candidate) {
+            //         send({
+            //             type: "ice",
+            //             from: username,
+            //             candidate: event.candidate
+            //         });
+            //     }
+            // };
+            // yourConn.current = yourConnection;
             await joinChannel(1);
         }
         serverConnection.current.onmessage = handleMessageFromServer;
@@ -68,19 +68,24 @@ function Home() {
             }
         };
     }, []);
-
     const getRemoteStream = (event) => {
         //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
         setCameraCount(1);
-        remoteVideo.current.srcObject = event.streams[0];
+        // peers[sid] = event.streams[0];
     }
-    const createPeerConnection = () => {
+    const createPeerConnection = (sid) => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
-        pc.ontrack = getRemoteStream;
+        pc.ontrack = (event) => {
+            console.log("ontrack", event)
+            setCameraCount(1);
+            remoteVideos.current[sid].srcObject = event.streams[0];
+        };
+        // pc.onaddstream = onAddStream();
         pc.addStream(localStream);
         return pc;
     }
+
     const onIceCandidate = (event) => {
         console.log("on icecandidate get user success:", event.candidate);
         if (event.candidate) {
@@ -92,15 +97,66 @@ function Home() {
         }
     };
 
+    const addPendingCandidates = (sid) => {
+        if (sid in pendingCandidates) {
+            pendingCandidates[sid].forEach(candidate => {
+                peers[sid].addIceCandidate(new RTCIceCandidate(candidate))
+            });
+        }
+    }
+
     const getUserMediaSuccess = (stream) => {
         setLocalStream(stream);
-        yourConn.current.ontrack = getRemoteStream;
-        yourConn.current.addStream(stream);
+        // yourConn.current.ontrack = getRemoteStream;
+        // yourConn.current.addStream(stream);
     }
 
     const send = (message) => {
         console.log("message to server:", message);
         serverConnection.current.send(JSON.stringify(message))
+    }
+
+    const sendOffer = (client, id) => {
+        peers[client].createOffer((offer) => {
+            console.log("offer", offer)
+            send({
+                type: "offer",
+                from: username,
+                data: id,
+                candidate: "",
+                sdp: offer.sdp,
+                other: {"to" : client}
+            })
+
+            peers[client].setLocalDescription(offer)
+        }, error => {
+            console.error("offer ", error)
+        })
+    }
+
+    const sendAnswer = (client, id) => {
+        console.log("sendAnswer")
+        peers[client].createAnswer((answer) => {
+            console.log("answer", answer)
+            send({
+                type: "answer",
+                from: username,
+                data: id,
+                candidate: "",
+                sdp: answer.sdp
+            })
+
+            peers[client].setLocalDescription(answer)
+        }, error => {
+            console.error("answer ", error)
+        })
+    }
+
+    const onAddStream = (event) => {
+        const newRemoteStreamElem = document.createElement('video');
+        newRemoteStreamElem.autoplay = true;
+        newRemoteStreamElem.srcObject = event.stream;
+        remoteVideos.current.push(newRemoteStreamElem);
     }
 
     const handleAnswer = (answer) => {
@@ -123,15 +179,29 @@ function Home() {
         switch (data.type) {
             case "offer":
                 console.log("====offer====")
-                handleOffer(data)
+                // handleOffer(data)
+                peers[data.from] = createPeerConnection(data.from);
+                peers[data.from].setRemoteDescription(new RTCSessionDescription(data));
+                sendAnswer(data.from);
+                addPendingCandidates(data.from);
                 break;
+
             case "ice":
                 console.log("====ice====")
-                handleCandidate(data.candidate)
+                // handleCandidate(data)
+                if (data.from in peers) {
+                    peers[data.from].addIceCandidate(new RTCIceCandidate(data.candidate));
+                } else {
+                    if (!(data.from in pendingCandidates)) {
+                        pendingCandidates[data.from] = [];
+                    }
+                    pendingCandidates[data.from].push(data.candidate)
+                }
                 break;
             case "answer":
                 console.log("====answer====")
-                handleAnswer(data)
+                // handleAnswer(data)
+                peers[data.client].setRemoteDescription(new RTCSessionDescription(data));
                 break;
             case "state":
                 setChannelList(JSON.parse(data.data).sort((a, b) => a.id - b.id))
@@ -143,6 +213,7 @@ function Home() {
     }
 
     const joinChannel = (id) => {
+        peers = {};
         send({
             type: "join",
             from: username,
@@ -150,20 +221,37 @@ function Home() {
             candidate: "",
             sdp: "",
         })
-        yourConn.current.createOffer((offer) => {
-            console.log("offer", offer)
-            send({
-                type: "offer",
-                from: username,
-                data: id,
-                candidate: "",
-                sdp: offer.sdp
-            })
+        const yourConnection = new RTCPeerConnection(peerConnectionConfig)
 
-            yourConn.current.setLocalDescription(offer)
-        }, error => {
-            console.error("offer ", error)
+        yourConnection.onicecandidate = onIceCandidate;
+        yourConn.current = yourConnection;
+        
+        channelList.forEach((channel) => {
+            if (channel.id === id) {
+                console.log(channel.clients)
+                channel.clients.forEach((client) => {
+                    if (client !== username) {
+                        peers[client] = createPeerConnection(client);
+                        sendOffer(client, id);
+                        addPendingCandidates(client);
+                    }
+                })
+            }
         })
+        // yourConn.current.createOffer((offer) => {
+        //     console.log("offer", offer)
+        //     send({
+        //         type: "offer",
+        //         from: username,
+        //         data: id,
+        //         candidate: "",
+        //         sdp: offer.sdp
+        //     })
+
+        //     yourConn.current.setLocalDescription(offer)
+        // }, error => {
+        //     console.error("offer ", error)
+        // })
     }
 
     const leaveChannel = () => {

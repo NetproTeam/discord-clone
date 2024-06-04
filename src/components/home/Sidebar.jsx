@@ -60,7 +60,7 @@ function Sidebar(props) {
     }
 
     const setChannel = (name, id) => {
-        console.log(name, id)
+        // console.log(name, id)
         props.setChannelName(name);
         props.setId(id);
     }
