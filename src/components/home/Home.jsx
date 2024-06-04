@@ -14,7 +14,7 @@ const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
 
 function Home() {
     const {username} = useParams();
-    const [cameraCount, setCameraCount] = useState(0); // 카메라 개수 상태
+    const [cameraCount, setCameraCount] = useState(2); // 카메라 개수 상태
     const [channelName, chanName] = useState(""); // 카메라 개수 상태
     const [myCameraState, setMyCameraState] = useState(false);
     const [myMikeState, setmyMikeState] = useState(false);
@@ -77,7 +77,7 @@ function Home() {
     const getRemoteStream = (event) => {
         //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
         setCameraCount(1);
-        remoteVideo.current.srcObject = event.streams[0];
+        // remoteVideo.current.srcObject = event.streams[0];
     }
     const createPeerConnection = () => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
