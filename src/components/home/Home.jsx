@@ -1,18 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import ChatScreen from "./ChatScreen";
 import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
-
-const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
 
 function Home() {
     const {username} = useParams();
     const [id, setId] = useState(1);
     const [channelName, setChannelName] = useState("");
     const [channelList, setChannelList] = useState([])
-    const [myCameraState, setMyCameraState] = useState(false);
-    const [myMikeState, setMyMikeState] = useState(false);
+    const [myCameraState, setMyCameraState] = useState(true);
+    const [myMikeState, setMyMikeState] = useState(true);
 
     
     const remoteVideos = useRef({});
@@ -72,7 +70,10 @@ function Home() {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
         pc.ontrack = (event) => {
+            // console.log("ontrack", event)
             peers.current[peerName].remoteStream = event.streams[0];
+            console.log("REMOTE STREAM")
+            console.log(peers.current[peerName].remoteStream)
         };
         if(localStream.current)
             pc.addStream(localStream.current);
@@ -250,6 +251,19 @@ function Home() {
         console.error(error)
     }
 
+    const peerStreamList = useMemo(() => {
+        console.log(peers.current)
+        const peerStreamList = [];
+
+        Object.keys(peers.current).forEach((key, index) => {
+            console.log(peers.current[key])
+            console.log(peers.current[key].remoteStream)
+            peerStreamList.push(peers.current[key].remoteStream);
+        });
+        console.log(peerStreamList)
+        return peerStreamList;
+    }, [peers.current])
+
     return (
         <div className="home">
             <Sidebar username={username} 
@@ -257,7 +271,7 @@ function Home() {
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
                 setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
-            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} cameraList={cameraListDummy}/>
+            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} streams={peerStreamList}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
