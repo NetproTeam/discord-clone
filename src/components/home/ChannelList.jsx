@@ -77,11 +77,12 @@ function ChannelList(props) {
     const [showUser, setShowUser] = useState(false);
 
     const addUser = () => {
+        props.setChannel(props.channelName, props.channelId);
         setShowUser(!showUser);
     };
 
     return (
-        <div className="channel-detail" onClick={() => props.setChannel(props.channelName, props.channelId)}>
+        <div className="channel-detail">
             <ListHeader channelName={props.channelName} onReset={props.onReset} channelId={props.channelId}
                         addUser={addUser}/>
 
