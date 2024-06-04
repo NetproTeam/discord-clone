@@ -7,7 +7,12 @@ import axios from "axios";
 const ChannelDelete = ({children, onClose, channelId}) => {
 
     function deleteChannel() {
+        
         return axios.delete("https://127.0.0.1/channel/" + id)
+    }
+
+    function getChannelList() {
+        return axios.get("https://127.0.0.1/channel")
     }
 
     const navigate = useNavigate();
@@ -15,6 +20,7 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     const [previousPath, setPreviousPath] = useState("");
     const [id, setId] = useState(channelId);
     const [name, setChannelName] = useState("");
+    const [found, setFound] = useState(true);
 
     useEffect(() => {
         setPreviousPath(location.pathname);
@@ -24,15 +30,38 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     }, []);
 
     const handleSubmit = () => {
-        if (id !== 1) {
-            deleteChannel().then((response) => {
+        console.log("del "+ id);
+        getChannelList().then(response => {            
+            // 서버에서 접속한 ID 갯수를 'count' 필드로 반환한다고 가정
+            console.log(response);
+            console.log("length "+response.data.length);
+            let i = 1;
+            
+            for (let index = 0; index < response.data.length; index++) {
+                if(response.data[index].id === id){
+                    console.log("found chan");
+                    console.log(response.data[index]);
+                    i = index;
+                    break; 
+                }
+            }
+            if (response.data[i].clients.length <= 0) {
+                console.log("client") 
+                console.log( response.data[i].clients);
+                deleteChannel().then((response) => {
+                    navigate(previousPath); // Navigate back to the original route
+                    onClose();
+                }).catch((error) => {
+                        console.error(error)
+                    }
+                )
+            }else{
                 navigate(previousPath); // Navigate back to the original route
                 onClose();
-            }).catch((error) => {
-                    console.error(error)
-                }
-            )
-        }
+            }
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
     };
 
     return createPortal(
