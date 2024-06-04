@@ -3,6 +3,7 @@ import {createPortal} from 'react-dom';
 import CloseIcon from "@mui/icons-material/Close";
 import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
+import PopError from './PopError';
 
 const ChannelDelete = ({children, onClose, channelId}) => {
     function deleteChannel() {
@@ -16,13 +17,24 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     const navigate = useNavigate();
     const location = useLocation();
     const [previousPath, setPreviousPath] = useState("");
-    
+    const [showError, setShowError] = useState(false);
+
     useEffect(() => {
         setPreviousPath(location.pathname);
     }, [location]);
     useEffect(() => {
         
     }, []);
+
+    const handleOpenError = () => {
+        setShowError(true);
+    };
+
+    const handleCloseError = () => {
+        navigate(previousPath); // Navigate back to the original route
+        onClose();
+        setShowError(false);
+    };
 
     const handleSubmit = () => {
         getChannelList().then(response => {            
@@ -44,9 +56,7 @@ const ChannelDelete = ({children, onClose, channelId}) => {
                     }
                 )
             }else{
-                alert("채널에 사용자가 있습니다.")
-                navigate(previousPath); // Navigate back to the original route
-                onClose();
+                handleOpenError();
             }
         }).catch(error => {
             console.error('Error fetching data:', error);
@@ -68,6 +78,11 @@ const ChannelDelete = ({children, onClose, channelId}) => {
                 <div className="bottom">
                     <button onClick={onClose} className="cancel">취소</button>
                     <button onClick={handleSubmit} className="delete">삭제하기</button>
+                </div>
+                <div className="popError">
+                    {showError ? <PopError message = {"채널에 유저가 존재합니다."} 
+                    onClose={handleCloseError}/> :
+                    <></> }
                 </div>
             </div>
         </div>,

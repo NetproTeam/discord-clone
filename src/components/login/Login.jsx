@@ -31,7 +31,6 @@ function Login() {
                 const name = encodeURIComponent(response.data.uniqueUserName);
                 navigate(`/home/${name}`);
             }).catch((error) => {
-                    console.log("max count")
                     handleOpenError();
                     console.error(error)
                 }
@@ -54,7 +53,8 @@ function Login() {
                 type={"submit"}
                 onClick={handleLogin}>로그인</button>
                 <div className="popError">
-                    {showError ? <PopError onClose={handleCloseError}/> :
+                    {showError ? <PopError message = {"서버가 가득 찼습니다."} 
+                    onClose={handleCloseError}/> :
                     <></> }
                 </div>
             </form>
