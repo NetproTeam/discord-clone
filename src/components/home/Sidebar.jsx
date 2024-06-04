@@ -7,12 +7,7 @@ import MicOnIcon from "@mui/icons-material/Mic";
 import MicOffIcon from "@mui/icons-material/MicOff";
 import ChannelList from "./ChannelList";
 import Dialog from "./AddChannelDialog";
-import UserScreen from './UserScreen';
-import Home from './Home';
-import UserCamera from './UserCamera';
-import UserVoice from './UserVoice';
 import axios from "axios";
-import PropTypes from "prop-types";
 
 function useInterval(callback, delay) {
     const savedCallback = useRef();
@@ -36,9 +31,8 @@ function getChannelList() {
     return axios.get("https://127.0.0.1/channel")
 }
 
-function Sidebar(props) {
+function Sidebar({currentChannelList, setChannelList, channelName, setChannel, myMikeState, setMyMikeState, setMyCameraState, myCameraState, username}) {
     const [showDialog, setShowDialog] = useState(false);
-    const channelList = props.channelList
 
     const handleOpenDialog = () => {
         setShowDialog(true);
@@ -48,26 +42,23 @@ function Sidebar(props) {
         resetList();
         setShowDialog(false);
     };
+
     useInterval(() => {
         resetList();
     }, 1000);
+
     const resetList = () => {
         getChannelList().then((response) => {
-            props.setChannelList(response.data.sort((a, b) => a.id - b.id));
+            setChannelList(response.data.sort((a, b) => a.id - b.id));
         }).catch((error) => {
             console.error(error);
         })
     }
 
-    const setChannel = (name, id) => {
-        props.setChannelName(name);
-        props.setId(id);
-    }
-
     return (
         <div className="col-md-2 sidebar" style={{paddingLeft: "0px", paddingRight: "0px"}}>
             <div className="top">
-                <h3>{props.username}</h3>
+                <h3>{username}</h3>
                 <ExpandMoreIcon/>
             </div>
 
@@ -76,12 +67,12 @@ function Sidebar(props) {
                     <div className="header">
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog} name={props.channelName}/>
+                    <AddIcon onClick={handleOpenDialog} name={channelName}/>
 
                     {showDialog && <Dialog onClose={handleCloseDialog}/>}
                 </div>
                 {
-                    channelList && channelList.map((data) => {
+                    currentChannelList && currentChannelList.map((data) => {
                         return <ChannelList key={data.id} onReset={resetList} channelId={data.id} channelName={data.name}
                                             setChannel={setChannel} client={data.clients}/>
                     })
@@ -90,15 +81,15 @@ function Sidebar(props) {
 
             <div className="profile-icons">
                 <div className="icon">
-                    {(props.myMikeState) ?
-                        <MicOnIcon onClick={props.offMike}/> :
-                        <MicOffIcon onClick={props.onMike}/>}
-                    <UserVoice micState={props.myMikeState}/>
+                    {(myMikeState) ?
+                        <MicOnIcon onClick={setMyMikeState}/> :
+                        <MicOffIcon onClick={setMyMikeState}/>}
+                    {/* <UserVoice micState={myMikeState}/> */}
                 </div>
                 <div className="icon">
-                    {(props.myCameraState) ?
-                        <CameraOnIcon onClick={props.offCamera}/> :
-                        <CameraOffIcon onClick={props.onCamera}/>}
+                    {(myCameraState) ?
+                        <CameraOnIcon onClick={setMyCameraState}/> :
+                        <CameraOffIcon onClick={setMyCameraState}/>}
                 </div>
             </div>
         </div>

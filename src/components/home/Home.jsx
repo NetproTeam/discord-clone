@@ -8,24 +8,23 @@ const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
 
 function Home() {
     const {username} = useParams();
-    const [cameraCount, setCameraCount] = useState(0); // 카메라 개수 상태
-    const [channelName, chanName] = useState(""); // 카메라 개수 상태
-    const [myCameraState, setMyCameraState] = useState(false);
-    const [myMikeState, setmyMikeState] = useState(false);
     const [id, setId] = useState(1);
+    const [channelName, setChannelName] = useState("");
     const [channelList, setChannelList] = useState([])
+    const [myCameraState, setMyCameraState] = useState(false);
+    const [myMikeState, setMyMikeState] = useState(false);
+
     
     const remoteVideos = useRef({});
     
+
     const serverConnection = useRef(null);
-    const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
-    const firstConn = useRef(null);
-    const yourConn = useRef(null);
-    const remoteVideo = useRef(null);
+    
 
     const localStream = useRef(null);
     const peers = useRef({});
+
 
     useEffect(() => {
         setPeerConfig({
@@ -40,17 +39,6 @@ function Home() {
         }
         serverConnection.current.onmessage = handleMessageFromServer;
 
-        let constraints = {
-            video: true,
-            audio: true
-        }
-
-
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
-        } else {
-            alert("브라우저가 미디어 API를 지원하지 않음")
-        }
         return () => {
             if (serverConnection.current) {
                 serverConnection.current.close();
@@ -58,8 +46,25 @@ function Home() {
         };
     }, []);
 
+    useEffect(() => {
+        if(!(myCameraState  && myMikeState)) {
+            return ;
+        }
+        let constraints = {
+            video: myCameraState,
+            audio: myMikeState,
+        }
+
+        if (navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
+        } else {
+            alert("브라우저가 미디어 API를 지원하지 않음")
+        }
+    }, [myCameraState, myMikeState]);
+
     const getRemoteStream = (event) => {
         //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
+
         setCameraCount(1);
         // peers[sid] = event.streams[0];
     }
@@ -240,6 +245,11 @@ function Home() {
         sendLeave();
         sendJoin(id);
         setId(id);
+        setChannelName(channelList.map(channel => {
+            if (channel.id === id) {
+                return channel.name
+            }
+        }))
     }
 
     const errorHandler = (error) => {
@@ -248,11 +258,12 @@ function Home() {
 
     return (
         <div className="home">
-            <Sidebar username={username} cameraCount={cameraCount} onCamera={onCamera} offCamera={offCamera}
-                     onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
-                     setChannelName={chanName} setId={setChannel} channelList={channelList}
-                     setChannelList={setChannelList}/>
-            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo} cameraList={cameraListDummy}/>
+            <Sidebar username={username} 
+                setMyMikeState={() => setMyMikeState(!myMikeState)} myMikeState={myMikeState}
+                setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
+                setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
+                setChannelList={setChannelList}/>
+            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} cameraList={cameraListDummy}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );

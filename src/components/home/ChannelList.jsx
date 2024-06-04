@@ -5,28 +5,15 @@ import {Delete, Mode} from "@mui/icons-material";
 import ChannelEdit from "./ChannelEdit";
 import ChannelDelete from "./ChannelDelete";
 
-function ListHeader({addUser, channelName, channelId, onReset}) {
+function ListHeader({setChannelFromCurrentId, originChannelName, channelId, onReset}) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [chanName, setChannelName] = useState(channelName);
-
-    const handleOpenDialog = () => {
-        setShowEditDialog(true);
-    };
-
-    const handleCloseDialog = () => {
-        setShowEditDialog(false);
-        onReset();
-    };
+    const [channelName, setChannelName] = useState(originChannelName);
 
     const handleUpdateChannelName = (newName) => {
         setChannelName(newName);
         setShowEditDialog(false);
         onReset();
-    };
-
-    const handleOpenDeleteDialog = () => {
-        setShowDeleteDialog(true);
     };
 
     const handleCloseDeleteDialog = () => {
@@ -35,31 +22,31 @@ function ListHeader({addUser, channelName, channelId, onReset}) {
     };
 
     return (
-        <div className="list-header">
-            <div className="list-joinBtn">
-                <button onClick={addUser} style={{
+        <div className="list-header" style={{width:"100%"}}>
+            <div className="list-joinBtn" style={{width:"100%"}}>
+                <button onClick={setChannelFromCurrentId} style={{
                     display: 'flex',
                     alignItems: 'center',
                     border: 'none',
                     background: 'none',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    width: '100%',
                 }}>
                     <SoundIcon style={{color: "white"}}/>
                     <h4 style={{marginLeft: '10px', display: "inline-block", color: "white"}}>
-                        {chanName}</h4>
+                        {channelName}</h4>
                 </button>
             </div>
             <div className="list-editBtn">
                 {channelId === 1 ? <></> :
-                    <Mode onClick={handleOpenDialog} style={{color: "white", justifyContent: 'space-between'}}/>}
-                {showEditDialog && <ChannelEdit onClose={handleCloseDialog} initialChannelName={chanName}
-                                                onSubmit={handleUpdateChannelName} channelId={channelId}
-                                                name={chanName}/>}
+                    <Mode onClick={() => setShowEditDialog(true)} style={{color: "white", justifyContent: 'space-between'}}/>}
+                {showEditDialog && <ChannelEdit onClose={() => setShowEditDialog(false)} initialChannelName={channelName}
+                                                onSubmit={handleUpdateChannelName} channelId={channelId}/>}
             </div>
             <div className="list-deleteBtn">
-                {channelId === 1 ? <></> : <Delete onClick={handleOpenDeleteDialog} style={{color: "white"}}/>}
+                {channelId === 1 ? <></> : <Delete onClick={() => setShowDeleteDialog(true)} style={{color: "white"}}/>}
                 {showDeleteDialog &&
-                    <ChannelDelete onClose={handleCloseDeleteDialog} channelId={channelId} name={chanName}/>}
+                    <ChannelDelete onClose={handleCloseDeleteDialog} channelId={channelId} />}
             </div>
         </div>
     );
@@ -73,24 +60,15 @@ function User(props) {
     );
 }
 
-function ChannelList(props) {
-    const [showUser, setShowUser] = useState(false);
-
-    const addUser = () => {
-        props.setChannel(props.channelName, props.channelId);
-        setShowUser(!showUser);
-    };
-
+function ChannelList({channelName, channelId, client, onReset, setChannel, ...props}) {
     return (
         <div className="channel-detail">
-            <ListHeader channelName={props.channelName} onReset={props.onReset} channelId={props.channelId}
-                        addUser={addUser}/>
-
-            {props.client && props.client.map(user => {
+            <ListHeader originChannelName={channelName} onReset={onReset} channelId={channelId}
+                        setChannelFromCurrentId={()=>{setChannel(channelId)}}/>
+            {client && client.map(user => {
                     return <User username={user} key={user}/>
                 }
             )}
-
         </div>
     );
 }
