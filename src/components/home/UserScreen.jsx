@@ -41,7 +41,7 @@ function UserScreen({myCameraState, myMikeState, cameraList}) {
                 <UserCamera key={0} stream={localStream.current} isHidden={!myCameraState}/>
 
                 {cameraList.map((camera, index) => (
-                    <UserCamera key={index + 1} isHidden={true}/>
+                    <UserCamera key={index + 1} stream={null} isHidden={true}/>
                 ))}
             </div>
 

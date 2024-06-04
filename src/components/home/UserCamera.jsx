@@ -1,15 +1,14 @@
 import React, {useEffect, useRef} from 'react';
 
 function UserCamera({stream, isHidden}) {
-    const videoRef = useRef({});
-
-    useEffect(() => {
+    const videoRef = useRef({}); 
+    useEffect(() =>{
         if (stream) {
             videoRef.current.srcObject = stream;
-        } else if (!videoRef.current) {
+        } else if (!videoRef) {
             videoRef.current = {};
         }
-    }, [stream])
+    },[stream]);
 
     return (
         <div className="camera">
