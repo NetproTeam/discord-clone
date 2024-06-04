@@ -53,7 +53,7 @@ function Home() {
     }, []);
 
     const getRemoteStream = (event) => {
-        remoteVideo.srcObject = event.stream[0]
+        setRemoteVideo(event.stream[0])
     }
 
     const getUserMediaSuccess = (stream) => {
