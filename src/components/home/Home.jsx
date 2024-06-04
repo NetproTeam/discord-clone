@@ -151,6 +151,7 @@ function Home() {
     }
 
     const handleOffer = (offer, name) => {
+        console.log(yourConn.current);
         yourConn.current.setRemoteDescription(new RTCSessionDescription({offer: offer}))
 
         yourConn.current.createAnswer((answer) => {
