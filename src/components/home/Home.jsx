@@ -3,6 +3,7 @@ import {useParams} from 'react-router-dom';
 import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
 import ChatScreen from "./ChatScreen";
+import { set } from 'react-hook-form';
 
 function Home() {
     const {username} = useParams();
@@ -17,8 +18,9 @@ function Home() {
     const [connectedUser, setConnectedUser] = useState(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
     const [localStream, setLocalStream] = useState(null);
-    const yourConn = useRef(null);
-    const [remoteVideo, setRemoteVideo] = useState(null);
+    const firstConn = useRef(null)
+    const yourConn = useRef([]);
+    const [remoteVideo, setRemoteVideo] = useState({});
 
     useEffect(() => {
         setPeerConfig({
@@ -53,7 +55,7 @@ function Home() {
     }, []);
 
     const getRemoteStream = (event) => {
-        remoteVideo.srcObject = event.stream[0]
+        setRemoteVideo(event.streams[0]);
     }
 
     const getUserMediaSuccess = (stream) => {
@@ -64,14 +66,14 @@ function Home() {
             console.log("on icecandidate get user success:", event.candidate);
             if (event.candidate) {
                 send({
-                    type: "candidate",
+                    type: "ice",
                     candidate: event.candidate
                 });
             }
         };
         yourConnection.ontrack = getRemoteStream;
         yourConnection.addStream(stream);
-        yourConn.current = yourConnection
+        yourConn.push(yourConnection);
     }
 
     const send = (message) => {
@@ -88,6 +90,7 @@ function Home() {
     }
 
     const handleCandidate = (candidate) => {
+        console.log("candidate:", candidate)
         yourConn.current.addIceCandidate(new RTCIceCandidate(candidate))
     }
 
@@ -99,15 +102,15 @@ function Home() {
             case "offer":
                 console.log("====offer====")
                 console.log(data)
-                handleOffer(data.data, data.name)
+                handleOffer(data, data.name)
                 break;
             case "ice":
                 console.log("====ice====")
-                handleCandidate(data.data)
+                handleCandidate(data)
                 break;
             case "answer":
                 console.log("====answer====")
-                handleAnswer(data.data)
+                handleAnswer(data)
                 break;
             case "state":
                 setChannelList(JSON.parse(data.data).sort((a, b) => a.id - b.id))
@@ -151,8 +154,12 @@ function Home() {
     }
 
     const handleOffer = (offer, name) => {
+        console.log(offer)
         console.log(yourConn.current);
-        yourConn.current.setRemoteDescription(new RTCSessionDescription({offer: offer}))
+        yourConn.current.setRemoteDescription(new RTCSessionDescription({
+            type: offer.type,
+            sdp: offer.sdp
+        }))
 
         yourConn.current.createAnswer((answer) => {
             yourConn.current.setLocalDescription(answer)
