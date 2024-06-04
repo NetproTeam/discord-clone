@@ -34,11 +34,6 @@ function Home() {
                 {'urls': 'stun:stun.l.google.com:19302'},
             ]
         });
-        // getChannelList().then((response) => {
-        //     setChannelList(response.data.sort((a, b) => a.id - b.id));
-        // }).catch((error) => {
-        //     console.error(error);
-        // })
         serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
             console.log("Server connected...");
@@ -78,7 +73,7 @@ function Home() {
     }, []);
 
     const getRemoteStream = (event) => {
-        //For Test
+        //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
         setCameraCount(1);
         remoteVideo.current.srcObject = event.streams[0];
     }
@@ -227,7 +222,7 @@ function Home() {
                      setChannelName={chanName} setId={setChannel} channelList={channelList}
                      setChannelList={setChannelList}/>
             <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo}/>
-            {/*<ChatScreen channelName={channelName} id={id} name={username}/>*/}
+            <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
 }

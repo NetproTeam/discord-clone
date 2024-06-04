@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 
 function UserCamera({myCameraState, remoteVideo}) {
-    const videoRef = useRef(remoteVideo);
+    const videoRef = useRef(null);
     const [streaming, setStreaming] = useState(false);
     console.log("remoteVideo")
     console.log(remoteVideo)
@@ -46,7 +46,7 @@ function UserCamera({myCameraState, remoteVideo}) {
             <div className="camera">
             {remoteVideo ? <div>상대방</div> : <div>나</div>}
             <video
-                ref={videoRef}
+                ref={remoteVideo ? remoteVideo : videoRef}
                 autoPlay
                 style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
             </video>
