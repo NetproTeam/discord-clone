@@ -1,18 +1,15 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import UserCamera from "./UserCamera";
-import { useEffect } from 'react';
 
-function UserScreen({myCameraState, remoteVideo, cameraCount, cameraList}) {
-    console.log("cameraCount", cameraCount)
-
-    let localStream = null;
-
+function UserScreen({myCameraState, myMikeState, cameraList}) {
+    const localStream = useRef(null);
     const turnOnMyCam = async () => {
         try {
-            localStream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: false // 오디오를 포함하고 싶다면 true로 변경
+            localStream.current = await navigator.mediaDevices.getUserMedia({
+                video: myCameraState,
+                audio: myMikeState
             });
+            
         } catch (err) {
             console.error("Error: " + err);
         }
@@ -21,31 +18,32 @@ function UserScreen({myCameraState, remoteVideo, cameraCount, cameraList}) {
     const turnOffMyCam = () => {
         try {
             if (!localStream) return;
-            const tracks = localStream.getTracks();
+            const tracks = localStream.current.getTracks();
 
             tracks.forEach(track => track.stop());
-            localStream = null;
+            localStream.current = null;
         } catch (e) {
             console.error(e)
         }
     };
 
     useEffect(() => {
-        if (myCameraState) {
+        if (myCameraState || myMikeState) {
             turnOnMyCam()
+            console.log("localStream: ", localStream.current)
         } else {
             turnOffMyCam()
         }
-    }, [myCameraState])
+    }, [myCameraState, myMikeState])
 
     return (
         <div className="user-screen">
             <div>
-                <UserCamera key={0} stream={localStream}/>
+                <UserCamera key={0} stream={localStream.current} isHidden={!myCameraState}/>
 
-                {/* {[...Array(cameraCount)].map((_, index) => (
-                    <UserCamera key={index + 1} myCameraState={myCameraState} remoteVideo={remoteVideo} isCameraOn={cameraList[index].isCameraOn}/>
-                ))} */}
+                {cameraList.map((camera, index) => (
+                    <UserCamera key={index + 1} isHidden={true}/>
+                ))}
             </div>
 
         </div>
