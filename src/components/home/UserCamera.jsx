@@ -13,7 +13,7 @@ function UserCamera({stream, isHidden}) {
     return (
         <div className="camera">
             {
-                (isHidden || !stream) ?
+                (!stream) ?
                 <img src="/dummy-user.png" style={{display: "block", marginLeft: "auto", marginRight: "auto", width: "75%"}}/> 
                 :
                 <video
@@ -21,7 +21,6 @@ function UserCamera({stream, isHidden}) {
                     autoPlay
                     style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
                 </video>
-                    
             }
         </div>
     );
