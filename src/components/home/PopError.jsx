@@ -1,24 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import {createPortal} from 'react-dom';
 import CloseIcon from "@mui/icons-material/Close";
-import {useLocation, useNavigate} from "react-router-dom";
-import axios from "axios";
 
 const PopError = ({children, onClose, message}) => {
-
-    const navigate = useNavigate();
-    const location = useLocation();
-    const [previousPath, setPreviousPath] = useState("");
-    const [name, setChannelName] = useState("");
-
-    useEffect(() => {
-        setPreviousPath(location.pathname);
-    }, [location]);
-    useEffect(() => {
-        
-    }, []);
-
-
     return createPortal(
         <div className="dialog">
             <div className="content">
@@ -32,7 +16,6 @@ const PopError = ({children, onClose, message}) => {
                 </div>
 
                 <div className="bottom">
-                    <button onClick={onClose} className="cancel">취소</button>
                     <button onClick={onClose} className="delete">확인</button>
                 </div>
             </div>

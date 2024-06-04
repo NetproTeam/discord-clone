@@ -65,7 +65,6 @@ function Home() {
     const getRemoteStream = (event) => {
         //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
 
-        setCameraCount(1);
         // peers[sid] = event.streams[0];
     }
 
@@ -226,19 +225,6 @@ function Home() {
             default:
                 break;
         }
-    }
-
-    const onCamera = () => {
-        setMyCameraState(true)
-    };
-    const offCamera = () => {
-        setMyCameraState(false)
-    };
-    const onMike = () => {
-        setmyMikeState(true)
-    }
-    const offMike = () => {
-        setmyMikeState(false)
     }
 
     const setChannel = (id) => {
