@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import AddIcon from "@mui/icons-material/Add";
 import CameraOnIcon from "@mui/icons-material/Videocam";
@@ -13,6 +13,24 @@ import UserCamera from './UserCamera';
 import UserVoice from './UserVoice';
 import axios from "axios";
 import PropTypes from "prop-types";
+
+function useInterval(callback, delay) {
+    const savedCallback = useRef();
+   
+    useEffect(() => {
+      savedCallback.current = callback;
+    }, [callback]);
+   
+    useEffect(() => {
+      function tick() {
+        savedCallback.current();
+      }
+      if (delay !== null) {
+        let id = setInterval(tick, delay);
+        return () => clearInterval(id);
+      }
+    }, [delay]);
+}
 
 function getChannelList() {
     return axios.get("https://127.0.0.1/channel")
@@ -30,7 +48,9 @@ function Sidebar(props) {
         resetList();
         setShowDialog(false);
     };
-
+    useInterval(() => {
+        resetList();
+    }, 1000);
     const resetList = () => {
         getChannelList().then((response) => {
             props.setChannelList(response.data.sort((a, b) => a.id - b.id));
