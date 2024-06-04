@@ -7,7 +7,6 @@ import axios from "axios";
 const ChannelDelete = ({children, onClose, channelId}) => {
 
     function deleteChannel() {
-        console.log(id);
         return axios.delete("https://127.0.0.1/channel/" + id)
     }
 

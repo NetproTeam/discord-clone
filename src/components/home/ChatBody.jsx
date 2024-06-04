@@ -22,9 +22,6 @@ function ChatBody(props) {
     const connect = () => {
         client.current = new StompJs.Client({
             brokerURL: serverUrl,
-            debug: function (str) {
-                console.log(str);
-            },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
@@ -70,7 +67,7 @@ function ChatBody(props) {
             <div className="messages">
                 {chatMessages.map((message) => {
                     return <ChatMessage name={message.senderUniqueName} content={message.content}
-                                        sendAt={formatTime(message.sentAt)}
+                                        sendAt={formatTime(message.sentAt)} key={message.sentAt}
                     />
                 })}
             </div>

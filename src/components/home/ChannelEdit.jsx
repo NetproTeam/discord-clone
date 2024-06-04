@@ -23,7 +23,6 @@ const ChannelEdit = ({children, onClose, initialChannelName,channelId, onSubmit}
 
     const handleSubmit = () => {
         if (id !== 1) {
-            console.log("input "+input);
             patchChannelName(input).then((response) => {
                 onSubmit(input);
                 navigate(previousPath); // Navigate back to the original route

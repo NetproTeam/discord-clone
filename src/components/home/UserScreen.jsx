@@ -3,16 +3,16 @@ import UserCamera from "./UserCamera";
 import CameraOnIcon from "@mui/icons-material/Videocam";
 import CameraOffIcon from "@mui/icons-material/VideocamOff";
 
-function UserScreen(props) {
+function UserScreen({myCameraState, remoteVideo, cameraCount}) {
     const [input, setCam] = useState("");
-
+    console.log("cameraCount", cameraCount)
     return (
         <div className="user-screen">
             <div>
-                <UserCamera key={0} myCameraState={props.myCameraState}/>
+                <UserCamera key={0} myCameraState={myCameraState}/>
 
-                {[...Array(props.cameraCount)].map((_, index) => (
-                    <UserCamera key={index + 1} myCameraState={props.myCameraState}/>
+                {[...Array(cameraCount)].map((_, index) => (
+                    <UserCamera key={index + 1} myCameraState={myCameraState} remoteVideo={remoteVideo}/>
                 ))}
             </div>
 
