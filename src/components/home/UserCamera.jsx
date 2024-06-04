@@ -20,6 +20,7 @@ function UserCamera(props) {
 
     const stopWebcam = () => {
         try {
+            if(!videoRef.current.srcObject) return;
             const stream = videoRef.current.srcObject;
             const tracks = stream.getTracks();
 
