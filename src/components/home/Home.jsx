@@ -4,6 +4,8 @@ import ChatScreen from "./ChatScreen";
 import Sidebar from "./Sidebar";
 import UserScreen from "./UserScreen";
 
+const cameraListDummy = [{isCameraOn: false}, {isCameraOn: true}]
+
 function Home() {
     const {username} = useParams();
     const [cameraCount, setCameraCount] = useState(0); // 카메라 개수 상태
@@ -37,12 +39,12 @@ function Home() {
             console.log("Server connected...");
         }
         serverConnection.current.onmessage = handleMessageFromServer;
-        
+
         let constraints = {
             video: true,
             audio: true
         }
-        
+
 
         if (navigator.mediaDevices.getUserMedia) {
             navigator.mediaDevices.getUserMedia(constraints).then(getUserMediaSuccess).catch(errorHandler);
@@ -250,7 +252,7 @@ function Home() {
                      onMike={onMike} offMike={offMike} myMikeState={myMikeState} myCameraState={myCameraState}
                      setChannelName={chanName} setId={setChannel} channelList={channelList}
                      setChannelList={setChannelList}/>
-            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo}/>
+            <UserScreen cameraCount={cameraCount} myCameraState={myCameraState} remoteVideo={remoteVideo} cameraList={cameraListDummy}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );

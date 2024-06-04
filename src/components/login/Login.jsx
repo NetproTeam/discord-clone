@@ -53,7 +53,8 @@ function Login() {
                 type={"submit"}
                 onClick={handleLogin}>로그인</button>
                 <div className="popError">
-                    {showError ? <PopError onClose={handleCloseError}/> :
+                    {showError ? <PopError message = {"서버가 가득 찼습니다."} 
+                    onClose={handleCloseError}/> :
                     <></> }
                 </div>
             </form>

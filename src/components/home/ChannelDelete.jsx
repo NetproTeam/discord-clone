@@ -3,11 +3,17 @@ import {createPortal} from 'react-dom';
 import CloseIcon from "@mui/icons-material/Close";
 import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
+import PopError from './PopError';
 
 const ChannelDelete = ({children, onClose, channelId}) => {
 
     function deleteChannel() {
+        
         return axios.delete("https://127.0.0.1/channel/" + id)
+    }
+
+    function getChannelList() {
+        return axios.get("https://127.0.0.1/channel")
     }
 
     const navigate = useNavigate();
@@ -15,6 +21,7 @@ const ChannelDelete = ({children, onClose, channelId}) => {
     const [previousPath, setPreviousPath] = useState("");
     const [id, setId] = useState(channelId);
     const [name, setChannelName] = useState("");
+    const [showError, setShowError] = useState(false);
 
     useEffect(() => {
         setPreviousPath(location.pathname);
@@ -23,16 +30,48 @@ const ChannelDelete = ({children, onClose, channelId}) => {
         
     }, []);
 
+    const handleOpenError = () => {
+        setShowError(true);
+    };
+
+    const handleCloseError = () => {
+        navigate(previousPath); // Navigate back to the original route
+        onClose();
+        setShowError(false);
+    };
+
     const handleSubmit = () => {
-        if (id !== 1) {
-            deleteChannel().then((response) => {
-                navigate(previousPath); // Navigate back to the original route
-                onClose();
-            }).catch((error) => {
-                    console.error(error)
+        console.log("del "+ id);
+        getChannelList().then(response => {            
+            // 서버에서 접속한 ID 갯수를 'count' 필드로 반환한다고 가정
+            console.log(response);
+            console.log("length "+response.data.length);
+            let i = 1;
+            
+            for (let index = 0; index < response.data.length; index++) {
+                if(response.data[index].id === id){
+                    console.log("found chan");
+                    console.log(response.data[index]);
+                    i = index;
+                    break; 
                 }
-            )
-        }
+            }
+            if (response.data[i].clients.length <= 0) {
+                console.log("client") 
+                console.log( response.data[i].clients);
+                deleteChannel().then((response) => {
+                    navigate(previousPath); // Navigate back to the original route
+                    onClose();
+                }).catch((error) => {
+                        console.error(error)
+                    }
+                )
+            }else{
+                handleOpenError();
+            }
+        }).catch(error => {
+            console.error('Error fetching data:', error);
+        });
     };
 
     return createPortal(
@@ -50,6 +89,11 @@ const ChannelDelete = ({children, onClose, channelId}) => {
                 <div className="bottom">
                     <button onClick={onClose} className="cancel">취소</button>
                     <button onClick={handleSubmit} className="delete">삭제하기</button>
+                </div>
+                <div className="popError">
+                    {showError ? <PopError message = {"채널에 유저가 존재합니다."} 
+                    onClose={handleCloseError}/> :
+                    <></> }
                 </div>
             </div>
         </div>,
