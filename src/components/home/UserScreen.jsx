@@ -13,7 +13,6 @@ function UserScreen({localStream, myCameraState, peers}) {
                 {
                     Object.keys(peers).map((peerName) => {
                         if (peers[peerName] && peers[peerName].remoteStream) {
-                            console.log(peers[peerName].remoteStream)
                             return (
                                 <div key = {peerName}>
                                     <h3>{peerName}</h3>
