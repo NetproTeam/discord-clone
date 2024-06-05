@@ -9,7 +9,7 @@ function UserCamera({stream, isHidden}) {
             console.log("[userCamera] change videoRef failed");
             videoRef.current = {};
         }
-    },[stream]);
+    },[stream, isHidden]);
 
     return (
         <div className="camera">
