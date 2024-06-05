@@ -33,9 +33,9 @@ function Home() {
             setIsConnected(true);
         }
         serverConnection.current.onmessage = handleMessageFromServer;
-        let constraints = {
-            video: myCameraState,
-            audio: myMikeState,
+        const constraints = {
+            video: true,
+            audio: true
         }
 
         if (navigator.mediaDevices.getUserMedia) {
@@ -43,6 +43,7 @@ function Home() {
         } else {
             alert("브라우저가 미디어 API를 지원하지 않음")
         }
+
         return () => {
             if (serverConnection.current) {
                 serverConnection.current.close();
@@ -75,6 +76,7 @@ function Home() {
             });
         }
     };
+    
 
     useEffect(() => {
         if (isConnected && isReady) {
