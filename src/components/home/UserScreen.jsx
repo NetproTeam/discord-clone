@@ -1,49 +1,23 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import UserCamera from "./UserCamera";
 
-function UserScreen({myCameraState, myMikeState, streams}) {
-    // console.log(peers.current)
-    const localStream = useRef(null);
-    const turnOnMyCam = async () => {
-        try {
-            localStream.current = await navigator.mediaDevices.getUserMedia({
-                video: myCameraState,
-                audio: myMikeState
-            });
-            
-        } catch (err) {
-            console.error("Error: " + err);
-        }
-    };
-
-    const turnOffMyCam = () => {
-        try {
-            if (!localStream.current) return;
-            const tracks = localStream.current.getTracks();
-
-            tracks.forEach(track => track.stop());
-            localStream.current = null;
-        } catch (e) {
-            console.error(e)
-        }
-    };
-
-    useEffect(() => {
-        if (myCameraState || myMikeState) {
-            turnOnMyCam()
-        } else {
-            turnOffMyCam()
-        }
-    }, [myCameraState, myMikeState])
+function UserScreen({localStream, myCameraState, peers}) {
 
     return (
         <div className="user-screen">
             <div>
-                <UserCamera key={0} stream={localStream.current} isHidden={!myCameraState}/>
-
-                {streams.map((stream, index) => (
-                    <UserCamera key={index + 1} stream={stream} isHidden={false}/>
-                ))}
+                <UserCamera key={0} stream={localStream.current} isHidden={!myCameraState} cnt={0}/>
+                {
+                    Object.values(peers).map((peer, index) => {
+                        if(!peer) return;
+                        return (
+                            <div key={index+1}>
+                                {index+1}
+                                <UserCamera key={index + 1} stream={peer.remoteStream} isHidden={false} cnt={index+1}/>
+                            </div>
+                        )
+                    })
+                }
             </div>
 
         </div>

@@ -12,10 +12,6 @@ function Home() {
     const [myCameraState, setMyCameraState] = useState(true);
     const [myMikeState, setMyMikeState] = useState(true);
 
-    
-    const remoteVideos = useRef({});
-    
-
     const serverConnection = useRef(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
     
@@ -70,10 +66,8 @@ function Home() {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
         pc.ontrack = (event) => {
-            // console.log("ontrack", event)
             peers.current[peerName].remoteStream = event.streams[0];
-            console.log("REMOTE STREAM")
-            console.log(peers.current[peerName].remoteStream)
+            peers.current = Object.assign({}, peers.current);
         };
         if(localStream.current)
             pc.addStream(localStream.current);
@@ -92,7 +86,15 @@ function Home() {
     };
 
     const getUserMediaSuccess = (stream) => {
+        const strea = localStream.current;
         localStream.current = stream;
+        Object.values(peers.current).forEach((peer) => {
+            if (peer !== undefined) {
+                peer.connection.removeStream(strea);
+                peer.connection.addStream(localStream.current);
+            }
+        });
+        peers.current = Object.assign({}, peers.current);
     }
 
     const send = (message) => {
@@ -211,7 +213,6 @@ function Home() {
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
-        console.log(data)
         switch (data.type) {
             case "offer":
                 handleOffer(data);
@@ -251,19 +252,6 @@ function Home() {
         console.error(error)
     }
 
-    const peerStreamList = useMemo(() => {
-        console.log(peers.current)
-        const peerStreamList = [];
-
-        Object.keys(peers.current).forEach((key, index) => {
-            console.log(peers.current[key])
-            console.log(peers.current[key].remoteStream)
-            peerStreamList.push(peers.current[key].remoteStream);
-        });
-        console.log(peerStreamList)
-        return peerStreamList;
-    }, [peers.current])
-
     return (
         <div className="home">
             <Sidebar username={username} 
@@ -271,7 +259,7 @@ function Home() {
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
                 setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
-            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} streams={peerStreamList}/>
+            <UserScreen myCameraState={myCameraState} myMikeState={myMikeState} peers={peers.current} localStream={localStream}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
