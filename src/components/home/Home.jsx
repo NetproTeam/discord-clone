@@ -214,7 +214,9 @@ function Home() {
     const handleCandidate = (message) => {
         if (peers.current[message.from] && peers.current[message.from].connection){
             const connection = peers.current[message.from].connection;
-            connection.addIceCandidate(new RTCIceCandidate(message.candidate))
+            connection.addIceCandidate(new RTCIceCandidate(message.candidate)).catch((e) => {
+                console.log("Failure during addIceCandidate(): ",e.name)
+            })
         }
     }
 
