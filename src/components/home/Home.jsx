@@ -14,7 +14,8 @@ function Home() {
 
     const serverConnection = useRef(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
-    
+    const [isConnected, setIsConnected] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     const localStream = useRef(null);
     const peers = useRef({});
@@ -29,20 +30,9 @@ function Home() {
         serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
             console.log("Server connected...");
+            setIsConnected(true);
         }
         serverConnection.current.onmessage = handleMessageFromServer;
-
-        return () => {
-            if (serverConnection.current) {
-                serverConnection.current.close();
-            }
-        };
-    }, []);
-
-    useEffect(() => {
-        if(!(myCameraState  && myMikeState)) {
-            return ;
-        }
         let constraints = {
             video: myCameraState,
             audio: myMikeState,
@@ -53,23 +43,26 @@ function Home() {
         } else {
             alert("브라우저가 미디어 API를 지원하지 않음")
         }
-    }, [myCameraState, myMikeState]);
+        return () => {
+            if (serverConnection.current) {
+                serverConnection.current.close();
+            }
+        };
+    }, []);
 
     const createPeerConnection = async (peerName) => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
         pc.ontrack = (event) => {
             peers.current[peerName].remoteStream = event.streams[0];
-            peers.current = Object.assign({}, peers.current);
+            peers.current = { ...peers.current };
         };
-        
         
         if(localStream.current) {
             localStream.current.getTracks().forEach(track => {
                 pc.addTrack(track, localStream.current);
             });
         }
-
         return pc;
     }
 
@@ -83,16 +76,43 @@ function Home() {
         }
     };
 
+    useEffect(() => {
+        if (isConnected && isReady) {
+            sendJoin(id);
+            setChannelName(channelList.map(channel => {
+                if (channel.id === id) {
+                    return channel.name
+                }
+            }));
+        }
+    }, [isConnected, isReady]);
+
+    useEffect(() => {
+        if (localStream.current) {
+            localStream.current.getAudioTracks().forEach((track) => {
+                track.enabled = myMikeState;
+            });
+        }
+    }, [myMikeState]);
+
+    useEffect(() => {
+        if (localStream.current) {
+            localStream.current.getVideoTracks().forEach((track) => {
+                track.enabled = myCameraState;
+            });
+        }
+    }, [myCameraState]);
+
     const getUserMediaSuccess = (stream) => {
-        const prevStream = localStream.current;
         localStream.current = stream;
-        Object.values(peers.current).forEach((peer) => {
-            if (peer && peer.connection) {
-                peer.connection.removeStream(prevStream);
-                peer.connection.addStream(localStream.current);
-            }
+        
+        localStream.current.getAudioTracks().forEach((track) => {
+            track.enabled = myMikeState;
         });
-        peers.current = Object.assign({}, peers.current);
+        localStream.current.getVideoTracks().forEach((track) => {
+            track.enabled = myCameraState;
+        });
+        setIsReady(true);
     }
 
     const send = (message) => {
@@ -119,9 +139,9 @@ function Home() {
             if (peers.current[peer] !== undefined) {
                 peers.current[peer].connection.close();
                 peers.current[peer] = undefined;
-                
             }
         }
+        peers.current = {};
         console.log("leave channel: ", peers.current)
     }
 
@@ -159,7 +179,10 @@ function Home() {
 
     const handleOffer = async (message) => {
         if (message.from in peers.current) {
-            // TODO: 이미 연결된 상대방이 offer를 보낸 경우에는 기존의 연결을 먼저 끊는다.   
+            if (peers.current[message.from] && peers.current[message.from].connection) {
+                peers.current[message.from].connection.close();
+                peers.current[message.from] = undefined;
+            }
         }
         
         peers.current[message.from] = {
@@ -193,8 +216,10 @@ function Home() {
     }
 
     const handleCandidate = (message) => {
-        const connection = peers.current[message.from].connection;
-        connection.addIceCandidate(new RTCIceCandidate(message))
+        if (peers.current[message.from] && peers.current[message.from].connection){
+            const connection = peers.current[message.from].connection;
+            connection.addIceCandidate(new RTCIceCandidate(message.candidate))
+        }
     }
 
     const handleLeave = (message) => {
@@ -250,6 +275,7 @@ function Home() {
     }
 
     return (
+        (isConnected && isReady) ? (
         <div className="home">
             <Sidebar username={username} 
                 setMyMikeState={() => setMyMikeState(!myMikeState)} myMikeState={myMikeState}
@@ -259,6 +285,11 @@ function Home() {
             <UserScreen myCameraState={myCameraState} peers={peers.current} localStream={localStream.current}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
+        ) : (
+            <div className="home">
+                <h1>Connecting...</h1>
+            </div>
+        )
     );
 }
 

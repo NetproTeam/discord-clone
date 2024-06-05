@@ -3,13 +3,14 @@ import React, {useEffect, useRef} from 'react';
 function UserCamera({stream, isHidden}) {
     const videoRef = useRef({}); 
     useEffect(() =>{
-        if (stream) {
+        if (stream && videoRef.current) {
             videoRef.current.srcObject = stream;
         } else {
             console.log("[userCamera] change videoRef failed");
+            videoRef.current = {};
         }
     },[stream]);
-    
+
     return (
         <div className="camera">
             {
