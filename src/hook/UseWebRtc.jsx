@@ -191,6 +191,12 @@ function useWebRtc({username, id, myCameraState, myMikeState, setChannelList}) {
         const connection = peers.current[message.from].connection;
         connection.close();
         peers.current[message.from] = undefined;
+        for (let i = 0; i < peerStreamList.current.length; i++) {
+            if (peerStreamList.current[i].peerName === message.from) {
+                peerStreamList.current.splice(i, 1);
+                break;
+            }
+        }
         console.log("receive leave: ", peers.current)
     }
 

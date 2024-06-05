@@ -10,6 +10,7 @@ function Home() {
     const [id, setId] = useState(0);
     const [channelName, setChannelName] = useState("");
     const [channelList, setChannelList] = useState([]);
+    //TODO: default false/true
     const [myCameraState, setMyCameraState] = useState(true);
     const [myMikeState, setMyMikeState] = useState(true);
     const [
@@ -20,18 +21,28 @@ function Home() {
         ready,
         localStream,
     ] = useWebRtc({username, id, myCameraState, myMikeState, setChannelList});
-
-    const setChannel = (id) => {
-        if (id !== 0) {
-            leaveChannel();
+    
+    useEffect(() => {
+        if (id === 0 && ready) {
+            joinChannel(1);
         }
-        sendJoin(id);
+    }, [ready]);
+
+    const joinChannel = (id) => {
         setId(id);
+        sendJoin(id);
         setChannelName(channelList.map(channel => {
             if (channel.id === id) {
                 return channel.name
             }
         }))
+    }
+    
+    const setChannel = (id) => {
+        if (id !== 0) {
+            leaveChannel();
+        }
+        joinChannel(id);
     }
     
     return (

@@ -9,7 +9,7 @@ function UserCamera({stream, isHidden}) {
             videoRef.current = {};
         }
     },[stream]);
-
+    // console.log("stream", stream)
     return (
         <div className="camera">
             {
@@ -18,6 +18,7 @@ function UserCamera({stream, isHidden}) {
                 :
                 <video
                     ref={videoRef}
+                    id={stream.id}
                     autoPlay
                     style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
                 </video>
