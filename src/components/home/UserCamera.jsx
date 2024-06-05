@@ -1,12 +1,12 @@
 import React, {useEffect, useRef} from 'react';
 
-function UserCamera({stream, isHidden,cnt}) {
+function UserCamera({stream, isHidden}) {
     const videoRef = useRef({}); 
     useEffect(() =>{
         if (stream) {
             videoRef.current.srcObject = stream;
-        } else if (!videoRef) {
-            videoRef.current = {};
+        } else {
+            console.log("[userCamera] change videoRef failed");
         }
     },[stream]);
     
@@ -21,7 +21,6 @@ function UserCamera({stream, isHidden,cnt}) {
                     autoPlay
                     style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
                 </video>
-                    
             }
         </div>
     );
