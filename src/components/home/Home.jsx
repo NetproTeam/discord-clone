@@ -149,15 +149,12 @@ function Home() {
 
     const handleJoin = async (message) => {
         if (message.data === '-1') return;
-        // TODO: 기존의 peer들을 모두 정리하는 코드 필요함
+        
         peers.current = {};
 
         const peerNames = message.other.readyList;
         peerNames.forEach(async (peerName) => {
-            peers.current[peerName] = {
-                remoteStream: null,
-                streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
-            }
+            peers.current[peerName] = {remoteStream: null}
 
             const pc = await createPeerConnection(peerName);
             peers.current[peerName].connection = pc;
@@ -187,10 +184,7 @@ function Home() {
             }
         }
         
-        peers.current[message.from] = {
-            remoteStream: null,
-            streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
-        }
+        peers.current[message.from] = {remoteStream: null}
         const pc = await createPeerConnection(message.from);
         peers.current[message.from].connection = pc;
 
@@ -204,8 +198,8 @@ function Home() {
                 data: message.data,
                 candidate: "",
                 sdp: answer.sdp,
-                other: "", // TODO: other가 어떤 type인지 확인 후 변경
-                to: message.from // TODO: answer에도 to 보내줘야할 필요가 있는가?
+                other: "",
+                to: message.from 
             })
         }, (error) => {
             alert("create answer error")
