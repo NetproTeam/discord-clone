@@ -10,7 +10,7 @@ function Home() {
     const [channelName, setChannelName] = useState("");
     const [channelList, setChannelList] = useState([])
     const [myCameraState, setMyCameraState] = useState(true);
-    const [myMikeState, setMyMikeState] = useState(true);    
+    const [myMikeState, setMyMikeState] = useState(true);
 
     const serverConnection = useRef(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
@@ -58,7 +58,7 @@ function Home() {
     const createPeerConnection = async (peerName) => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
-        pc.ontrack = async (event) => {
+        pc.ontrack = (event) => {
             peers.current[peerName].remoteStream = event.streams[0];
             peers.current = Object.assign({}, peers.current);
         };
@@ -84,12 +84,15 @@ function Home() {
     };
 
     const getUserMediaSuccess = (stream) => {
+        const prevStream = localStream.current;
         localStream.current = stream;
         Object.values(peers.current).forEach((peer) => {
-            if (peer.connection) {
-                peer.connection.addStream(stream);
+            if (peer && peer.connection) {
+                peer.connection.removeStream(prevStream);
+                peer.connection.addStream(localStream.current);
             }
         });
+        peers.current = Object.assign({}, peers.current);
     }
 
     const send = (message) => {
@@ -254,7 +257,7 @@ function Home() {
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
                 setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
-            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} peers={peers} localStream={localStream.current}/>
+            <UserScreen myCameraState={myCameraState} peers={peers.current} localStream={localStream.current}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );

@@ -1,13 +1,20 @@
 import React from 'react';
 import UserCamera from "./UserCamera";
 
-function UserScreen({myCameraState, myMikeState, peers, localStream}) {
+function UserScreen({localStream, myCameraState, peers}) {
+
     return (
         <div className="user-screen">
             <div>
                 <UserCamera key={0} stream={localStream} isHidden={!myCameraState}/>
-
-                {Object.values(peers.current).map((peer, index) => (<UserCamera key={index + 1} stream={peer.remoteStream} isHidden={false} />))}
+                {
+                    Object.values(peers).map((peer, index) => (
+                        <div key={index+1}>
+                            {index+1}
+                            <UserCamera key={index + 1} stream={peer.remoteStream} isHidden={false}/>
+                        </div>
+                    ))
+                }
             </div>
 
         </div>
