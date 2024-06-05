@@ -132,9 +132,8 @@ function Home() {
 
         const peerNames = message.other.readyList;
         peerNames.forEach(async (peerName) => {
-            const defaultMediaStream = new MediaStream();
             peers.current[peerName] = {
-                remoteStream: defaultMediaStream,
+                remoteStream: null,
                 streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
             }
 
