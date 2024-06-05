@@ -8,12 +8,16 @@ function UserScreen({localStream, myCameraState, peers}) {
             <div>
                 <UserCamera key={0} stream={localStream} isHidden={!myCameraState}/>
                 {
-                    Object.values(peers).map((peer, index) => (
-                        <div key={index+1}>
-                            {index+1}
-                            <UserCamera key={index + 1} stream={peer.remoteStream} isHidden={false}/>
-                        </div>
-                    ))
+                    Object.values(peers).map((peer, index) => {
+                        if (peer && peer.remoteStream)
+                            return (
+                                <div key={index+1}>
+                                    {index+1}
+                                    <UserCamera key={index + 1} stream={peer.remoteStream} isHidden={false}/>
+                                </div>
+                            )
+                        return ;
+                    })
                 }
             </div>
 
