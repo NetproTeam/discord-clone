@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ChatScreen from "./ChatScreen";
 import Sidebar from "./Sidebar";
@@ -10,11 +10,7 @@ function Home() {
     const [channelName, setChannelName] = useState("");
     const [channelList, setChannelList] = useState([])
     const [myCameraState, setMyCameraState] = useState(true);
-    const [myMikeState, setMyMikeState] = useState(true);
-
-    
-    const remoteVideos = useRef({});
-    
+    const [myMikeState, setMyMikeState] = useState(true);    
 
     const serverConnection = useRef(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
@@ -22,7 +18,6 @@ function Home() {
 
     const localStream = useRef(null);
     const peers = useRef({});
-
 
     useEffect(() => {
         setPeerConfig({
@@ -60,23 +55,20 @@ function Home() {
         }
     }, [myCameraState, myMikeState]);
 
-    const getRemoteStream = (event) => {
-        //TODO: 상대방의 비디오를 받아와서 화면에 띄워주는 함수
-
-        // peers[sid] = event.streams[0];
-    }
-
-    const createPeerConnection = (peerName) => {
+    const createPeerConnection = async (peerName) => {
         const pc = new RTCPeerConnection(peerConnectionConfig);
         pc.onicecandidate = onIceCandidate;
-        pc.ontrack = (event) => {
-            // console.log("ontrack", event)
+        pc.ontrack = async (event) => {
             peers.current[peerName].remoteStream = event.streams[0];
-            console.log("REMOTE STREAM")
-            console.log(peers.current[peerName].remoteStream)
+            peers.current = Object.assign({}, peers.current);
         };
-        if(localStream.current)
-            pc.addStream(localStream.current);
+        
+        
+        if(localStream.current) {
+            localStream.current.getTracks().forEach(track => {
+                pc.addTrack(track, localStream.current);
+            });
+        }
 
         return pc;
     }
@@ -93,6 +85,11 @@ function Home() {
 
     const getUserMediaSuccess = (stream) => {
         localStream.current = stream;
+        Object.values(peers.current).forEach((peer) => {
+            if (peer.connection) {
+                peer.connection.addStream(stream);
+            }
+        });
     }
 
     const send = (message) => {
@@ -125,19 +122,21 @@ function Home() {
         console.log("leave channel: ", peers.current)
     }
 
-    const handleJoin = (message) => {
+    const handleJoin = async (message) => {
         if (message.data === '-1') return;
         // TODO: 기존의 peer들을 모두 정리하는 코드 필요함
         peers.current = {};
 
         const peerNames = message.other.readyList;
-        peerNames.forEach((peerName) => {
-            const pc = createPeerConnection(peerName);
+        peerNames.forEach(async (peerName) => {
+            const defaultMediaStream = new MediaStream();
             peers.current[peerName] = {
-                connection: pc,
-                remoteStream: null,
+                remoteStream: defaultMediaStream,
                 streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
             }
+
+            const pc = await createPeerConnection(peerName);
+            peers.current[peerName].connection = pc;
 
             pc.createOffer((offer) => {
                 pc.setLocalDescription(offer);
@@ -156,18 +155,17 @@ function Home() {
         });
     }
 
-    const handleOffer = (message) => {
-        const pc = createPeerConnection(message.from);
-
+    const handleOffer = async (message) => {
         if (message.from in peers.current) {
             // TODO: 이미 연결된 상대방이 offer를 보낸 경우에는 기존의 연결을 먼저 끊는다.   
         }
         
         peers.current[message.from] = {
-            connection: pc,
             remoteStream: null,
             streamType: "voice" // TODO: streamType은 어떻게 받아올지 확인 후 변경
         }
+        const pc = await createPeerConnection(message.from);
+        peers.current[message.from].connection = pc;
 
         pc.setRemoteDescription(new RTCSessionDescription(message))
         pc.createAnswer((answer) => {
@@ -202,7 +200,6 @@ function Home() {
         const connection = peers.current[message.from].connection;
         connection.close();
         peers.current[message.from] = undefined;
-        console.log("receive leave: ", peers.current)
     }
 
     const handleState = (message) => {
@@ -211,7 +208,6 @@ function Home() {
 
     const handleMessageFromServer = (message) => {
         let data = JSON.parse(message.data)
-        console.log(data)
         switch (data.type) {
             case "offer":
                 handleOffer(data);
@@ -251,19 +247,6 @@ function Home() {
         console.error(error)
     }
 
-    const peerStreamList = useMemo(() => {
-        console.log(peers.current)
-        const peerStreamList = [];
-
-        Object.keys(peers.current).forEach((key, index) => {
-            console.log(peers.current[key])
-            console.log(peers.current[key].remoteStream)
-            peerStreamList.push(peers.current[key].remoteStream);
-        });
-        console.log(peerStreamList)
-        return peerStreamList;
-    }, [peers.current])
-
     return (
         <div className="home">
             <Sidebar username={username} 
@@ -271,7 +254,7 @@ function Home() {
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
                 setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
-            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} streams={peerStreamList}/>
+            <UserScreen myCameraState={myCameraState}  myMikeState = {myMikeState} peers={peers} localStream={localStream.current}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>
         </div>
     );
