@@ -4,7 +4,7 @@ import axios from "axios";
 import PopError from "../home/PopError";
 
 function postUserName(username) {
-    return axios.post("http://127.0.0.1/login", {name: username})
+    return axios.post("http://127.0.0.1:8080/login", {name: username})
 }
 
 function Login() {

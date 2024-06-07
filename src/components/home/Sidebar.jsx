@@ -28,7 +28,7 @@ function useInterval(callback, delay) {
 }
 
 function getChannelList() {
-    return axios.get("http://127.0.0.1/channel")
+    return axios.get("http://127.0.0.1:8080/channel")
 }
 
 function Sidebar({currentChannelList, setChannelList, channelName, setChannel, myMikeState, setMyMikeState, setMyCameraState, myCameraState, username}) {

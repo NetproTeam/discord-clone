@@ -7,7 +7,7 @@ import axios from "axios";
 const ChannelEdit = ({children, onClose, initialChannelName, channelId, onSubmit}) => {
 
     function patchChannelName(channelName) {
-        return axios.patch("http://127.0.0.1/channel/"+channelId, { name: channelName }); // 포트 번호 확인
+        return axios.patch("http://127.0.0.1:8080/channel/"+channelId, { name: channelName }); // 포트 번호 확인
     }
     const [input, setInput] = useState(initialChannelName);
 
