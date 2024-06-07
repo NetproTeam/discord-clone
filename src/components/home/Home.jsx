@@ -27,7 +27,7 @@ function Home() {
                 {'urls': 'stun:stun.l.google.com:19302'},
             ]
         });
-        serverConnection.current = new WebSocket("wss://127.0.0.1/signal");
+        serverConnection.current = new WebSocket("ws://127.0.0.1/signal");
         serverConnection.current.onopen = async () => {
             console.log("Server connected...");
             setIsConnected(true);

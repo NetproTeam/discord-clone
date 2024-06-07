@@ -7,7 +7,7 @@ import axios from "axios";
 const AddChannelDialog = ({children, onClose}) => {
 
     function postChannelName(channelName) {
-        return axios.post("https://127.0.0.1/channel", {name: channelName})
+        return axios.post("http://127.0.0.1/channel", {name: channelName})
     }
     const navigate = useNavigate();
     const location = useLocation();

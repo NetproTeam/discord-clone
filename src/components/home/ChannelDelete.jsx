@@ -7,11 +7,11 @@ import PopError from './PopError';
 
 const ChannelDelete = ({children, onClose, channelId}) => {
     function deleteChannel() {
-        return axios.delete("https://127.0.0.1/channel/" + channelId)
+        return axios.delete("http://127.0.0.1/channel/" + channelId)
     }
 
     function getChannelList() {
-        return axios.get("https://127.0.0.1/channel")
+        return axios.get("http://127.0.0.1/channel")
     }
 
     const navigate = useNavigate();

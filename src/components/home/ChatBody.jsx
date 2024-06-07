@@ -10,7 +10,7 @@ function formatTime(timestamp) {
 function ChatBody(props) {
     const [input, setInput] = useState('');
     const client = useRef({});
-    const serverUrl = "https://127.0.0.1/"
+    const serverUrl = "http://127.0.0.1/"
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
