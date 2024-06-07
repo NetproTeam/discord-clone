@@ -1,6 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import * as StompJs from '@stomp/stompjs';
 import ChatMessage from "./ChatMessage";
+import SockJS from "sockjs-client";
 
 function formatTime(timestamp) {
     const date = new Date(timestamp);
@@ -10,7 +11,7 @@ function formatTime(timestamp) {
 function ChatBody(props) {
     const [input, setInput] = useState('');
     const client = useRef({});
-    const serverUrl = "http://127.0.0.1:8080/"
+    const serverUrl = "ws://localhost:8080/chatting"
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
@@ -22,11 +23,13 @@ function ChatBody(props) {
     const connect = () => {
         client.current = new StompJs.Client({
             brokerURL: serverUrl,
+            webSocketFactory: () => new SockJS("http://localhost:8080/chatting"),
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
             heartbeatOutgoing: 4000,
             onConnect: () => {
                 subscribe();
+                console.log("Chatting Connected");
             },
             onStompError: (frame) => {
                 console.error(frame);
