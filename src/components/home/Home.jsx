@@ -11,7 +11,6 @@ function Home() {
     const [channelList, setChannelList] = useState([])
     const [myCameraState, setMyCameraState] = useState(true);
     const [myMikeState, setMyMikeState] = useState(true);
-
     const serverConnection = useRef(null);
     const [peerConnectionConfig, setPeerConfig] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -81,12 +80,6 @@ function Home() {
     useEffect(() => {
         if (isConnected && isReady) {
             sendJoin(id);
-            console.log(channelList)
-            setChannelName(channelList.map(channel => {
-                if (channel.id === id) {
-                    return channel.name
-                }
-            }));
         }
     }, [isConnected, isReady]);
 
@@ -105,6 +98,13 @@ function Home() {
             });
         }
     }, [myCameraState]);
+
+    useEffect(() => {
+        if (channelList.filter(channel => channel.id === id) &&
+            channelList.filter(channel => channel.id === id)[0]){
+            setChannelName(channelList.filter(channel => channel.id === id)[0].name);
+        }
+    }, [channelList, id]);
 
     const getUserMediaSuccess = (stream) => {
         localStream.current = stream;
@@ -229,13 +229,7 @@ function Home() {
     }
 
     const handleState = (message) => {
-        const tmpChannelList = JSON.parse(message.data).sort((a, b) => a.id - b.id);
         setChannelList(JSON.parse(message.data).sort((a, b) => a.id - b.id))
-        setChannelName(tmpChannelList.map(channel => {
-            if (channel.id === id) {
-                return channel.name
-            }
-        }))
     }
 
     const handleMessageFromServer = (message) => {
@@ -264,10 +258,11 @@ function Home() {
         }
     }
 
-    const setChannel = (id) => {
+    const setChannel = (newId) => {
         leaveChannel();
-        sendJoin(id);
-        setId(id);
+        sendJoin(newId);
+        setId(newId);
+        setChannelName(channelList.filter(channel => channel.id === newId)[0].name);
     }
 
     const errorHandler = (error) => {
@@ -280,7 +275,7 @@ function Home() {
             <Sidebar username={username} 
                 setMyMikeState={() => setMyMikeState(!myMikeState)} myMikeState={myMikeState}
                 setMyCameraState={() => setMyCameraState(!myCameraState)} myCameraState={myCameraState}
-                setChannelName={setChannelName} setChannel={setChannel} currentChannelList={channelList}
+                setChannel={setChannel} currentChannelList={channelList}
                 setChannelList={setChannelList}/>
             <UserScreen myCameraState={myCameraState} peers={peers.current} localStream={localStream.current}/>
             <ChatScreen channelName={channelName} id={id} name={username}/>

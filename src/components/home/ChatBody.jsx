@@ -13,7 +13,6 @@ function ChatBody(props) {
     const client = useRef({});
     const serverUrl = "ws://localhost:8080/chatting"
     const [chatMessages, setChatMessages] = useState([]);
-
     useEffect(() => {
         connect();
         setChatMessages([]);
