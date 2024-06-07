@@ -81,6 +81,7 @@ function Home() {
     useEffect(() => {
         if (isConnected && isReady) {
             sendJoin(id);
+            console.log(channelList)
             setChannelName(channelList.map(channel => {
                 if (channel.id === id) {
                     return channel.name
@@ -228,7 +229,13 @@ function Home() {
     }
 
     const handleState = (message) => {
+        const tmpChannelList = JSON.parse(message.data).sort((a, b) => a.id - b.id);
         setChannelList(JSON.parse(message.data).sort((a, b) => a.id - b.id))
+        setChannelName(tmpChannelList.map(channel => {
+            if (channel.id === id) {
+                return channel.name
+            }
+        }))
     }
 
     const handleMessageFromServer = (message) => {
@@ -261,11 +268,6 @@ function Home() {
         leaveChannel();
         sendJoin(id);
         setId(id);
-        setChannelName(channelList.map(channel => {
-            if (channel.id === id) {
-                return channel.name
-            }
-        }))
     }
 
     const errorHandler = (error) => {
