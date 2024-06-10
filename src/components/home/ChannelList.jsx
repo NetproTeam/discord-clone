@@ -5,7 +5,7 @@ import {Delete, Mode} from "@mui/icons-material";
 import ChannelEdit from "./ChannelEdit";
 import ChannelDelete from "./ChannelDelete";
 
-function ListHeader({setChannelFromCurrentId, originChannelName, channelId, onReset}) {
+function ListHeader({setChannelFromCurrentId, originChannelName, channelId, onReset, createdBy,username}) {
     const [showEditDialog, setShowEditDialog] = useState(false);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [channelName, setChannelName] = useState(originChannelName);
@@ -41,12 +41,12 @@ function ListHeader({setChannelFromCurrentId, originChannelName, channelId, onRe
                 {channelId === 1 ? <></> :
                     <Mode onClick={() => setShowEditDialog(true)} style={{color: "white", justifyContent: 'space-between'}}/>}
                 {showEditDialog && <ChannelEdit onClose={() => setShowEditDialog(false)} initialChannelName={channelName}
-                                                onSubmit={handleUpdateChannelName} channelId={channelId}/>}
+                                                onSubmit={handleUpdateChannelName} channelId={channelId} /> }
             </div>
             <div className="list-deleteBtn">
-                {channelId === 1 ? <></> : <Delete onClick={() => setShowDeleteDialog(true)} style={{color: "white"}}/>}
+                {channelId === 1 || createdBy !== username? <></> : <Delete onClick={() => setShowDeleteDialog(true)} style={{color: "white"}} createdBy={createdBy}/>}
                 {showDeleteDialog &&
-                    <ChannelDelete onClose={handleCloseDeleteDialog} channelId={channelId} />}
+                    <ChannelDelete onClose={handleCloseDeleteDialog} channelId={channelId} createdBy={createdBy} username={username}/>}
             </div>
         </div>
     );
@@ -60,11 +60,11 @@ function User(props) {
     );
 }
 
-function ChannelList({channelName, channelId, client, onReset, setChannel, ...props}) {
+function ChannelList({channelName, channelId, client, onReset, setChannel,createdBy,username, ...props}) {
     return (
         <div className="channel-detail">
             <ListHeader originChannelName={channelName} onReset={onReset} channelId={channelId}
-                        setChannelFromCurrentId={()=>{setChannel(channelId)}}/>
+                        setChannelFromCurrentId={()=>{setChannel(channelId)}} createdBy={createdBy} username={username}/>
             {client && client.map(user => {
                     return <User username={user} key={user}/>
                 }

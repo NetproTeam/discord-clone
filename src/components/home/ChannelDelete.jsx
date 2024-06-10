@@ -5,9 +5,9 @@ import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 import PopError from './PopError';
 
-const ChannelDelete = ({children, onClose, channelId}) => {
+const ChannelDelete = ({children, onClose, channelId, createdBy,username}) => {
     function deleteChannel() {
-        return axios.delete("http://127.0.0.1:8080/channel/" + channelId)
+        return axios.delete("http://127.0.0.1:8080/channel/" + channelId )
     }
 
     function getChannelList() {
@@ -48,6 +48,10 @@ const ChannelDelete = ({children, onClose, channelId}) => {
                 }
             }
             if (response.data[i].clients.length <= 0) {
+                if (createdBy != username){
+                    alert("채널을 삭제할 권한이 없습니다.");
+                    return;
+                }
                 deleteChannel().then((response) => {
                     navigate(previousPath); // Navigate back to the original route
                     onClose();

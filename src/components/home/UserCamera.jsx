@@ -20,7 +20,6 @@ function UserCamera({stream, isHidden}) {
                 <video
                     ref={videoRef}
                     autoPlay
-                    muted
                     playsInline
                     style={{width: '100%', height: '300px', transform: 'scaleX(-1)'}}>
                 </video>

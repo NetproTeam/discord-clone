@@ -73,8 +73,8 @@ function Sidebar({currentChannelList, setChannelList, channelName, setChannel, m
                 </div>
                 {
                     currentChannelList && currentChannelList.map((data) => {
-                        return <ChannelList key={data.id} onReset={resetList} channelId={data.id} channelName={data.name}
-                                            setChannel={setChannel} client={data.clients}/>
+                        return <ChannelList key={data.id + data.name} onReset={resetList} channelId={data.id} channelName={data.name}
+                                            setChannel={setChannel} client={data.clients} createdBy={data.createdBy} userName={username}/>
                     })
                 }
             </div>
