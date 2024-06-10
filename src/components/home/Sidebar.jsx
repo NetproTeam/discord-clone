@@ -67,14 +67,14 @@ function Sidebar({currentChannelList, setChannelList, channelName, setChannel, m
                     <div className="header">
                         <h5>음성 체널</h5>
                     </div>
-                    <AddIcon onClick={handleOpenDialog} name={channelName}/>
+                    <AddIcon onClick={handleOpenDialog} name={channelName} username={username}/>
 
-                    {showDialog && <Dialog onClose={handleCloseDialog}/>}
+                    {showDialog && <Dialog onClose={handleCloseDialog} username={username}/>}
                 </div>
                 {
                     currentChannelList && currentChannelList.map((data) => {
                         return <ChannelList key={data.id + data.name} onReset={resetList} channelId={data.id} channelName={data.name}
-                                            setChannel={setChannel} client={data.clients} createdBy={data.createdBy} userName={username}/>
+                                            setChannel={setChannel} client={data.clients} createdBy={data.createdBy} username={username}/>
                     })
                 }
             </div>

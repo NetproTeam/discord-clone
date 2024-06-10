@@ -4,10 +4,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import {useLocation, useNavigate} from "react-router-dom";
 import axios from "axios";
 
-const AddChannelDialog = ({children, onClose}) => {
+const AddChannelDialog = ({children, onClose, username}) => {
 
-    function postChannelName(channelName) {
-        return axios.post("http://127.0.0.1:8080/channel", {name: channelName})
+    function postChannelName(channelName,username) {
+        return axios.post("http://127.0.0.1:8080/channel", {name: channelName, createdBy: username})
     }
     const navigate = useNavigate();
     const location = useLocation();
@@ -25,7 +25,7 @@ const AddChannelDialog = ({children, onClose}) => {
 
     const handleSubmit = () => {
         if (input.length !== 0) {
-            postChannelName(input).then((response) => {
+            postChannelName(input,username).then((response) => {
                 navigate(previousPath); // Navigate back to the original route
                 onClose();
             }).catch((error) => {
